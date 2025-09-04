@@ -7,31 +7,21 @@
 // 7. Back To Menu
 
 
-// DONE Menu v1
-// TO DO Menu v1.5
-
-
-
-
+// DONE Menu v0.1
+// TO DO Menu v0.5
+//-----------------
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-void cls(){
-    system("cls||clear");
-}
-void delay_q(int d_value){
-    printf("Exit Program...in");
-    for(int i = d_value; i >= 1; i--){
-        printf("...%d",i);
-        sleep(1);
-    }
-    printf("\n");
-    printf("EXIT...");
-}
-
+//-----------------
+// SETUP FUNCTION
+void cls();
+void delay_q(int d_value);
+void delay(int delay);
 void menu();
+//-----------------
 
+// main v0.1
 int main() {
     int choice;
     do {
@@ -64,7 +54,7 @@ int main() {
             printf("******************************************\n");
             printf("!!! Invalid choice. Please try again. !!!\n");
             printf("******************************************\n");
-            sleep(1.5);
+            delay(1.5);
         }
     }
     while(1);
@@ -72,7 +62,30 @@ int main() {
 
 }
 
+// clear terminal
+void cls(){
+    system("cls||clear");
+}
 
+
+// delay to quit the program
+// TO DO DO save or Not 
+void delay_q(int d_value){
+    printf("Exit Program...in");
+    for(int i = d_value; i >= 1; i--){
+        printf("...%d",i);
+        delay(1);
+    }
+    printf("\n");
+    printf("EXIT...");
+}
+
+// sleep to delay for me because i program robot LOL
+void delay(int delay){
+    sleep(delay);
+}
+
+// Menu v0.5
 void menu(){
     cls();
     printf("==========================================\n");
@@ -85,7 +98,7 @@ void menu(){
     printf("5. Update Data\n");
     printf("6. Delete Data\n");
     printf("7. Back To Menu\n");
-    printf("8. Exit The Program\n\n");
-    printf("******************************************\n");
-    printf("Enter your choice (1-7): ");
+    printf("8. !! Exit The Program !!\n\n");
+    printf("==========================================\n");
+    printf(" --> Enter your choice (1-8): ");
 }
