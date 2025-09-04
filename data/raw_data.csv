@@ -1,0 +1,16 @@
+OrderID,ProductName,Quantity,TotalPrice
+O001,TV,1,85243
+O002,Wires,5,1514
+O003,Keyboard,5,62473
+O004,OLED_TV,1,76878
+O005,Chair,3,28656
+O006,Notebook,1,25512
+O007,PC,1,96021
+O008,Viper_V3_Pro,3,61440
+O009,Gameming_TV,1,44137
+O010,Desktop,1,53203
+O011,Golden_Orange,2,8204
+O012,Table,3,88111
+O013,Bed,4,39912
+O014,Golden_Apple,5,4493
+O015,LanCat_7,1,2588

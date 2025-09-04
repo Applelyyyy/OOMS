@@ -1,0 +1,91 @@
+// 1. Save Data TO CSV
+// 2. List Data IN CSV {Print all in csv}
+// 3. Add Data TO CSV
+// 4. Search Data
+// 5. Update Data {in temp file csv}
+// 6. Delete Data
+// 7. Back To Menu
+
+
+// DONE Menu v1
+// TO DO Menu v1.5
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+void cls(){
+    system("cls||clear");
+}
+void delay_q(int d_value){
+    printf("Exit Program...in");
+    for(int i = d_value; i >= 1; i--){
+        printf("...%d",i);
+        sleep(1);
+    }
+    printf("\n");
+    printf("EXIT...");
+}
+
+void menu();
+
+int main() {
+    int choice;
+    do {
+        menu();
+        scanf("%d",&choice);
+        switch (choice)
+        {
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            cls();
+            break;
+        case 8:
+            cls();
+            delay_q(3);
+            exit(0);
+        default:
+            cls();
+            printf("\n");
+            printf("******************************************\n");
+            printf("!!! Invalid choice. Please try again. !!!\n");
+            printf("******************************************\n");
+            sleep(1.5);
+        }
+    }
+    while(1);
+    return 0;
+
+}
+
+
+void menu(){
+    cls();
+    printf("==========================================\n");
+    printf("Welcome To Online Order Management System \n");
+    printf("==========================================\n\n");
+    printf("1. Save Data TO CSV\n");
+    printf("2. List Data IN CSV\n");
+    printf("3. Add Data TO CSV\n");
+    printf("4. Search Data\n");
+    printf("5. Update Data\n");
+    printf("6. Delete Data\n");
+    printf("7. Back To Menu\n");
+    printf("8. Exit The Program\n\n");
+    printf("******************************************\n");
+    printf("Enter your choice (1-7): ");
+}
