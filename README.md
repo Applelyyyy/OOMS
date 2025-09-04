@@ -1,8 +1,7 @@
 # OOMS
 Online Order Management System in C
 
-# Version 
-V0.1-beta-09/04/2025
--Do Menu
--Do start Function
--Do Exit Function
+## Version
+    Current Version: 0.1-beta-09/04/2025
+    ### Changelog
+*   **V0.1-beta-09/04/2025:** Menu and function
