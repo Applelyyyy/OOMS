@@ -9,7 +9,9 @@
 // log to do
 // DONE Menu v0.1
 // DONE Menu v0.5
-// To do read the file csv v0.1
+// Done read the file csv v1
+// todo change path file
+// todo 
 
 
 //-----------------
@@ -32,11 +34,14 @@ void ui_change_csv();
 char *check_file();
 //-----------------
 // filename defult CSV
-char *filename = "../data/draw_data.csv";
+char *filename = "../data/raw_data.csv";
 //-----------------
-// main v1
+
+
+
+// main v2
 int main() {
-    char input[100];
+    char input[256];
     int choice;
     do {
         menu();
@@ -76,7 +81,6 @@ int main() {
     }
     while(1);
     return 0;
-
 }
 
 
@@ -146,8 +150,9 @@ char *check_file(){
     }
 }
 
-
+// list all in csv file
 void list(){
+    cls();
     FILE *file = fopen(filename, "r");
     if (file == NULL){
         printf("--------------------------------------\n\n");
@@ -157,13 +162,15 @@ void list(){
         getchar();
     }
     else{
-        printf("\n--------------------------------------\n");
+        printf("--------------------------------------\n");
+        printf("\t     LIST CSV\n");
+        printf("--------------------------------------\n");
         char line[256];
         while (fgets(line, sizeof(line), file)) {
             printf("%s", line); // list all csv
         }
         fclose(file);
-        printf("\n--------------------------------------\n");
+        printf("--------------------------------------\n");
         printf("\nPress Enter to go back to the menu...");
         getchar();
     }
@@ -178,13 +185,15 @@ void cls(){
 // delay to quit the program
 // TO DO DO save or Not 
 void delay_q(int d_value){
-    printf("Exit Program...in");
+    printf("Exit Program..[");
     for(int i = d_value; i >= 1; i--){
-        printf("...%d",i);
+        printf("===");
         delay(1);
     }
+    printf("]");
     printf("\n");
-    printf("EXIT...");
+    printf("Press Enter to EXIT...");
+    getchar();
 }
 
 // sleep to delay for me because i program robot LOL
@@ -210,7 +219,7 @@ void menu(){
     printf("8. Change Path CSV\n");
     printf("9. !! Exit The Program !!\n");
     printf("------------------------------------------\n\n");
-    printf("\t     Current Read CSV\n");
+    printf("\t     Current Read CSV\n\n");
     printf("%s\n", check_file());
     printf("==========================================\n");
     printf(" --> Enter your choice (1-9): ");
