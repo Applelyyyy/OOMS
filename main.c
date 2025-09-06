@@ -19,6 +19,7 @@ void cls();
 void delay_q(int d_value);
 void delay(int delay);
 void menu();
+void invalid();
 //-----------------
 
 // main v0.1
@@ -26,7 +27,11 @@ int main() {
     int choice;
     do {
         menu();
-        scanf("%d",&choice);
+        if (scanf("%d",&choice) != 1) {
+            invalid();
+            while (getchar() != '\n');
+            continue;
+        }
         switch (choice)
         {
         case 1:
@@ -49,18 +54,16 @@ int main() {
             delay_q(3);
             exit(0);
         default:
-            cls();
-            printf("\n");
-            printf("******************************************\n");
-            printf("!!! Invalid choice. Please try again. !!!\n");
-            printf("******************************************\n");
-            delay(1.5);
+            invalid();
         }
     }
     while(1);
     return 0;
 
 }
+
+//load data in 
+
 
 // clear terminal
 void cls(){
@@ -102,3 +105,14 @@ void menu(){
     printf("==========================================\n");
     printf(" --> Enter your choice (1-8): ");
 }
+
+// error input function
+void invalid(){
+    cls();
+    printf("\n");
+    printf("******************************************\n");
+    printf("!!! Invalid choice. Please try again. !!!\n");
+    printf("******************************************\n");
+    delay(1.5);
+}
+
