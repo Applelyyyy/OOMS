@@ -10,7 +10,7 @@
 // DONE Menu v0.1
 // DONE Menu v0.5
 // Done read the file csv v1
-// todo change path file
+// done change path file v-beta
 // todo 
 
 
@@ -30,11 +30,12 @@ void read_csv(char *filename);
 void list();
 void change_csv_path();
 char *csv_name();
-void ui_change_csv();
 char *check_file();
 //-----------------
 // filename defult CSV
 char *filename = "../data/raw_data.csv";
+//  defult CSV config
+char *csv_default = "OrderID,ProductName,Quantity,TotalPrice";
 //-----------------
 
 
@@ -69,7 +70,7 @@ int main() {
             cls();
             break;
         case 8:
-            // change_csv_path();
+            change_csv_path();
             break;
         case 9:
             cls();
@@ -83,38 +84,59 @@ int main() {
     return 0;
 }
 
-
-
-
-
-// // ui cange file path CSV
-// void ui_change_csv(){
-//     cls();
-//     printf("Change CSV File Path\n");
-//     printf("==========================================\n");
-//     printf("Current CSV File: %s\n", csv_name(););
-//     printf("Enter new CSV file path: ");
-// }
-
-
-// //change file path CSV
-// void change_csv_path(){
-//     ui_change_csv();
-//     char n_path[256];
-//     if (fgets(n_path, sizeof(n_path), stdin) != NULL){
-//         size_t len = strlen(n_path);
-//         if (len > 0 && new_path[len - 1] == '\n'){
-//             n_path[len - 1] = '\0';
-//         }
-//         filename = strdup(new_path);
-//         printf("\nCSV file path updated to: %s\n", filename);
-//     }
-//     else {
-//         printf("\n Failed to read input\n");
-//         printf("CSV File Not Change ! use --> %s",csv_name());
-//     }
-//     delay(1.5);
-// }
+//todo make a ui v2
+//change file path CSV
+void change_csv_path(){
+    cls();
+    printf("--------------------------------------\n");
+    printf("Change CSV File and Create\n");
+    printf("--------------------------------------\n");
+    printf("Enter new CSV file path (relative to 'data' folder): ");
+    char n_path[256];
+    if (fgets (n_path, sizeof(n_path), stdin) != NULL){
+        size_t len = strlen(n_path);
+        if (len > 0 && n_path[len - 1] == '\n'){
+            n_path[len - 1] = '\0';
+        }
+        //create file
+        char full_path[512];
+        snprintf(full_path, sizeof(full_path), "../data/%s.csv",n_path);
+        FILE *file = fopen(full_path, "r");
+        // if have file go else and loaded
+        if (file == NULL){
+            // create file and loaded and csv_default auto loaded
+            file = fopen(full_path, "w");
+            fprintf(file,"%s\n",csv_default);
+            fclose(file);
+            if (file == NULL){
+                printf("--------------------------------------\n");
+                printf("!!! Error : Could Not Create File\n");
+                printf("--------------------------------------\n");
+                printf("Press Enter to go back to the menu...\n");
+                getchar();
+                return;
+            }
+            printf("--------------------------------------\n");
+            printf("New CSV File Create! --> %s\n", full_path);
+            printf("--------------------------------------\n");
+        }
+        else {
+            printf("--------------------------------------\n");
+            printf("CSV file Found and Loaded: %s\n", full_path);
+            printf("--------------------------------------\n");
+        }
+        fclose(file);
+        filename = strdup(full_path);
+    }
+    else {
+        printf("!!! Error !!!\n");
+        printf("--------------------------------------\n");
+        printf("Failed to read CSV Path not Change use -->%s\n",csv_name());
+        printf("--------------------------------------\n");
+    }
+    printf("\nPress Enter to go back to the menu...");
+    getchar();
+}
 
 
 
@@ -167,7 +189,7 @@ void list(){
         printf("--------------------------------------\n");
         char line[256];
         while (fgets(line, sizeof(line), file)) {
-            printf("%s", line); // list all csv
+            printf("|%s", line); // list all csv
         }
         fclose(file);
         printf("--------------------------------------\n");
@@ -216,7 +238,7 @@ void menu(){
     printf("5. Update Data\n");
     printf("6. Delete Data\n");
     printf("7. Back To Menu\n");
-    printf("8. Change Path CSV\n");
+    printf("8. Change file CSV\n");
     printf("9. !! Exit The Program !!\n");
     printf("------------------------------------------\n\n");
     printf("\t     Current Read CSV\n\n");
