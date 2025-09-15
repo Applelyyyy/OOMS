@@ -1,17 +1,23 @@
 // 1. Save Data TO CSV
-// 2. List Data IN CSV {Print all in csv}
+// 2. List Data IN CSV {Print all in csv} //done
 // 3. Add Data TO CSV
 // 4. Search Data
 // 5. Update Data {in temp file csv}
 // 6. Delete Data
 // 7. Back To Menu
+//plan v2
+// 1. list
+// 2. change path
+// 3. go back to menu
+// 4. update/Search csv -> 1.listv2 2.Search 3.add data -> if yes add 4.delete if yes -> delete 
+// 5 -> 3,6,save
 
 // log to do
 // DONE Menu v0.1
 // DONE Menu v0.5
 // Done read the file csv v1
 // done change path file v-beta
-// todo 
+// done load file csv and change path 
 
 
 //-----------------
@@ -26,7 +32,6 @@ void delay_q(int d_value);
 void delay(int delay);
 void menu();
 void invalid();
-void read_csv(char *filename);
 void list();
 void change_csv_path();
 char *csv_name();
@@ -40,7 +45,7 @@ char *csv_default = "OrderID,ProductName,Quantity,TotalPrice";
 
 
 
-// main v2
+// main v4
 int main() {
     char input[256];
     int choice;
@@ -54,25 +59,18 @@ int main() {
         switch (choice)
         {
         case 1:
-            break;
-        case 2:
             list();
             break;
-        case 3:
-            break;
-        case 4:
-            break;
-        case 5:
-            break;
-        case 6:
-            break;
-        case 7:
-            cls();
-            break;
-        case 8:
+        case 2:
             change_csv_path();
             break;
-        case 9:
+        case 3:
+            cls();
+            main();
+        case 4:
+        //Larg-update
+            break;
+        case 5:
             cls();
             delay_q(3);
             exit(0);
@@ -84,8 +82,8 @@ int main() {
     return 0;
 }
 
-//todo make a ui v2
-//change file path CSV
+//done make a ui v2
+//change file path CSV and create file if not have 
 void change_csv_path(){
     cls();
     printf("--------------------------------------\n");
@@ -224,6 +222,9 @@ void delay(int delay){
 }
 
 // Menu v1.5
+// printf("3. Add Data TO CSV\n");
+// printf("4. Search Data\n");
+// printf("6. Delete Data\n");
 void menu(){
     cls();
     printf("==========================================\n");
@@ -231,20 +232,16 @@ void menu(){
     printf("==========================================\n\n");
     printf("\t     --|Menu Panel|--\n");
     printf("------------------------------------------\n");
-    printf("1. Save Data TO CSV\n");
-    printf("2. List Data IN CSV\n");
-    printf("3. Add Data TO CSV\n");
-    printf("4. Search Data\n");
-    printf("5. Update Data\n");
-    printf("6. Delete Data\n");
-    printf("7. Back To Menu\n");
-    printf("8. Change file CSV\n");
-    printf("9. !! Exit The Program !!\n");
+    printf("1. List Data IN CSV\n");
+    printf("2. Change file CSV\n");
+    printf("3. Back To Menu\n");
+    printf("4. Update Data / Search Data\n");
+    printf("5. !! Exit The Program !!\n");
     printf("------------------------------------------\n\n");
     printf("\t     Current Read CSV\n\n");
     printf("%s\n", check_file());
     printf("==========================================\n");
-    printf(" --> Enter your choice (1-9): ");
+    printf(" --> Enter your choice (1-5): ");
 }
 
 // error input function
