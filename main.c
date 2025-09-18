@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "github_sync.h" //sync file CSV
 //-----------------
 // SETUP FUNCTION prototypes
 void cls();
@@ -31,9 +32,11 @@ char *csv_name();
 char *check_file();
 void enter_to_back();
 void c_no_file_CSV();
+void start();
+int read_data();
 //-----------------
 // filename defult CSV
-char *filename = "../data/draw_data.csv";
+char *filename = "../data/raw_data.csv";
 //  defult CSV config
 char *csv_default = "OrderID,ProductName,Quantity,TotalPrice";
 //-----------------
@@ -65,6 +68,8 @@ int main() {
     int choice;
     c_no_file_CSV();
     do {
+        start();
+        read_data();
         menu();
         if (fgets(input, sizeof(input), stdin) == NULL) {
             invalid();
@@ -120,7 +125,7 @@ void change_csv_path(){
         choice = atoi(input);
             if (choice == 2){
                 cls();
-                main();
+                start();
             }
             else if (choice == 1){
                 printf("Enter new CSV file path (relative to 'data' folder): ");
@@ -154,26 +159,24 @@ void change_csv_path(){
                         printf("--------------------------------------\n");
                         printf("New CSV File Create! --> %s\n", full_path);
                         printf("--------------------------------------\n");
-                    }
+                        }
                     else {
                         printf("--------------------------------------\n");
                         printf("CSV file Found! and "GREEN"Loaded: %s\n"RESET, full_path);
                         printf("--------------------------------------\n");
+                        fclose(file);
                     }
-                    fclose(file);
-                    //free filename
+                    // Free previous filename if it was dynamically allocated
+                    if (filename != NULL && filename != csv_default && filename != "../data/raw_data.csv") {
                     free(filename);
-                    filename = malloc(strlen(full_path) + 1);
-                    if(filename != NULL){
-                        strcpy(filename, full_path);
-                    }
-                    else{
-                        printf(RED);
-                        printf("!!!Error !!!\n");
-                        perror("malloc");
-                        printf(RESET);
                     }
                     filename = strdup(full_path);
+                    // Reset product data
+                    product_count = 0;
+                    product_capacity = 0;
+                    free(products);
+                    products = NULL;
+                    read_data();
                 }
                 else {
                     printf("--------------------------------------\n");
@@ -237,7 +240,9 @@ void list(){
         printf(GREEN"\t     LIST CSV\n"RESET);
         printf("--------------------------------------\n");
         printf("%-10s %-20s %-10s %-10s\n", "OrderID", "ProductName", "Quantity", "TotalPrice");
-        fclose(file);
+        for (int i = 0; i < product_count; i++){
+        printf("%-10s %-20s %-10d %-10d\n",products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+        }
         printf("--------------------------------------\n");
         enter_to_back();
     }
@@ -282,10 +287,10 @@ int read_data(){
             case 1:
                 strcpy(products[product_count].ProductName, token);
                 break;
-            case 3:
+            case 2:
                 products[product_count].Quantitiy = atoi(token);
                 break;
-            case 4:
+            case 3:
                 products[product_count].TotalPrice = atoi(token);
             default:
                 break;
@@ -309,6 +314,15 @@ void c_no_file_CSV(){
         return;
     }
     else{
+        sync_github_file();//auto sync file from github
+        FILE *file = fopen(filename, "r");
+        if (file != NULL){
+            fclose(file);
+            filename = strdup(filename);
+            read_data();
+        }
+        // my to create new file
+        /*
         char ac_file[256];
         snprintf(ac_file,sizeof(ac_file),"../data/new_file.csv");
         FILE *file = fopen(ac_file, "w");
@@ -324,6 +338,7 @@ void c_no_file_CSV(){
         else{
             exit(0);
         }
+        */
     }
 }
 
@@ -375,4 +390,10 @@ void invalid(){
 void enter_to_back(){
     printf("\nPress "RED"Enter"RESET" to go back to the menu...");
     getchar();
+}
+
+//start
+
+void start(){
+    cls();
 }
