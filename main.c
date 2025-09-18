@@ -1,10 +1,3 @@
-// 1. Save Data TO CSV
-// 2. List Data IN CSV {Print all in csv} //done
-// 3. Add Data TO CSV
-// 4. Search Data
-// 5. Update Data {in temp file csv}
-// 6. Delete Data
-// 7. Back To Menu
 //plan v2
 // 1. list
 // 2. change path
@@ -18,7 +11,7 @@
 // Done read the file csv v1
 // done change path file v-beta
 // done load file csv and change path
-// todo make plan 5
+// todo make plan 4
 
 
 //-----------------
@@ -212,7 +205,7 @@ char *csv_name() {
     if (dot) {
         *dot = '\0';
     }
-    printf("Current Read CSV --> %s\n\n",r_name);
+    printf("Current Read CSV --> "YELLOW"%s\n\n"RESET"",r_name);
     return 0;
 }
 
@@ -220,7 +213,7 @@ char *csv_name() {
 char *check_file(){
     FILE *file = fopen(filename, "r");
     if (file == NULL){
-        printf("Error: Could not open file %s\n", filename);
+        printf(RED"Error"RESET" : Could not open file "YELLOW"%s\n"RESET"", filename);
         return 0;
     }
     else{
@@ -338,21 +331,6 @@ void c_no_file_CSV(){
 void cls(){
     system("cls||clear");
 }
-
-// NOT USE
-// delay to quit the program
-// TO DO DO save or Not 
-// void delay_q(int d_value){
-//     printf("Exit Program..[");
-//     for(int i = d_value; i >= 1; i--){
-//         printf("===");
-//         delay(1);
-//     }
-//     printf("]");
-//     printf("\n");
-//     printf("Press Enter to EXIT...");
-//     getchar();
-// }
 
 // sleep to delay for me because i program robot LOL
 void delay(int delay){
