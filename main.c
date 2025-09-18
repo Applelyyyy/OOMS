@@ -17,7 +17,8 @@
 // DONE Menu v0.5
 // Done read the file csv v1
 // done change path file v-beta
-// done load file csv and change path 
+// done load file csv and change path
+// todo make plan 5
 
 
 //-----------------
@@ -28,7 +29,6 @@
 //-----------------
 // SETUP FUNCTION prototypes
 void cls();
-void delay_q(int d_value);
 void delay(int delay);
 void menu();
 void invalid();
@@ -36,19 +36,41 @@ void list();
 void change_csv_path();
 char *csv_name();
 char *check_file();
+void enter_to_back();
+void c_no_file_CSV();
 //-----------------
 // filename defult CSV
-char *filename = "../data/raw_data.csv";
+char *filename = "../data/draw_data.csv";
 //  defult CSV config
 char *csv_default = "OrderID,ProductName,Quantity,TotalPrice";
 //-----------------
+//structures csv for r w search
+struct data_csv_st {
+    char OrderID[50];
+    char ProductName[100];
+    int Quantitiy;
+    int TotalPrice;
+};
+//-----------------
+// Set var
+int product_count = 0;
+int product_capacity = 0;
+struct data_csv_st *products = NULL;
+//-----------------
+// ANSI color
+#define RED     "\x1b[31m"
+#define GREEN   "\x1b[32m"
+#define YELLOW  "\x1b[33m"
+#define BLUE    "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define CYAN    "\x1b[36m"
+#define RESET   "\x1b[0m"
 
-
-
-// main v4
+// main v5
 int main() {
     char input[256];
     int choice;
+    c_no_file_CSV();
     do {
         menu();
         if (fgets(input, sizeof(input), stdin) == NULL) {
@@ -66,13 +88,15 @@ int main() {
             break;
         case 3:
             cls();
-            main();
+            break;
         case 4:
         //Larg-update
             break;
         case 5:
+            printf(RESET);
             cls();
-            delay_q(3);
+            printf(RED"Press Enter to EXIT...");
+            getchar();
             exit(0);
         default:
             invalid();
@@ -82,58 +106,93 @@ int main() {
     return 0;
 }
 
-//done make a ui v2
 //change file path CSV and create file if not have 
 void change_csv_path(){
     cls();
     printf("--------------------------------------\n");
-    printf("Change CSV File and Create\n");
+    printf("Change CSV File(Path) and Create(NewFile)\n");
     printf("--------------------------------------\n");
-    printf("Enter new CSV file path (relative to 'data' folder): ");
-    char n_path[256];
-    if (fgets (n_path, sizeof(n_path), stdin) != NULL){
-        size_t len = strlen(n_path);
-        if (len > 0 && n_path[len - 1] == '\n'){
-            n_path[len - 1] = '\0';
-        }
-        //create file
-        char full_path[512];
-        snprintf(full_path, sizeof(full_path), "../data/%s.csv",n_path);
-        FILE *file = fopen(full_path, "r");
-        // if have file go else and loaded
-        if (file == NULL){
-            // create file and loaded and csv_default auto loaded
-            file = fopen(full_path, "w");
-            fprintf(file,"%s\n",csv_default);
-            fclose(file);
-            if (file == NULL){
-                printf("--------------------------------------\n");
-                printf("!!! Error : Could Not Create File\n");
-                printf("--------------------------------------\n");
-                printf("Press Enter to go back to the menu...\n");
-                getchar();
-                return;
+    printf("You want to continue ?\n");
+    printf("1. Continue\n");
+    printf("2. Go Back\n");
+    printf("--------------------------------------\n");
+    printf("--->");
+    char input[256];
+    int choice;
+    if (fgets(input, sizeof(input), stdin) == NULL)
+    {
+        invalid();
+        change_csv_path();
+    }
+        choice = atoi(input);
+            if (choice == 2){
+                cls();
+                main();
             }
-            printf("--------------------------------------\n");
-            printf("New CSV File Create! --> %s\n", full_path);
-            printf("--------------------------------------\n");
-        }
-        else {
-            printf("--------------------------------------\n");
-            printf("CSV file Found and Loaded: %s\n", full_path);
-            printf("--------------------------------------\n");
-        }
-        fclose(file);
-        filename = strdup(full_path);
+            else if (choice == 1){
+                printf("Enter new CSV file path (relative to 'data' folder): ");
+                char n_path[256];
+                if (fgets (n_path, sizeof(n_path), stdin) != NULL){
+                    size_t len = strlen(n_path);
+                    if (len > 0 && n_path[len - 1] == '\n'){
+                        n_path[len - 1] = '\0';
+                    }
+                    //create file
+                    char full_path[512];
+                    snprintf(full_path, sizeof(full_path), "../data/%s.csv",n_path);
+                    FILE *file = fopen(full_path, "r");
+                    // if have file go else and loaded
+                    if (file == NULL){
+                        // create file and loaded and csv_default auto loaded
+                        file = fopen(full_path, "w");
+                        fprintf(file,"%s\n",csv_default);
+                        fclose(file);
+                        if (file == NULL){
+                            printf("--------------------------------------\n");
+                            printf("!!! Error : Could Not Create File\n");
+                            printf("--------------------------------------\n");
+                            enter_to_back();
+                            return;
+                        }
+                        cls();
+                        printf("--------------------------------------\n");
+                        printf("Change CSV File and Create\n");
+                        printf("--------------------------------------\n");
+                        printf("--------------------------------------\n");
+                        printf("New CSV File Create! --> %s\n", full_path);
+                        printf("--------------------------------------\n");
+                    }
+                    else {
+                        printf("--------------------------------------\n");
+                        printf("CSV file Found! and "GREEN"Loaded: %s\n"RESET, full_path);
+                        printf("--------------------------------------\n");
+                    }
+                    fclose(file);
+                    //free filename
+                    free(filename);
+                    filename = malloc(strlen(full_path) + 1);
+                    if(filename != NULL){
+                        strcpy(filename, full_path);
+                    }
+                    else{
+                        printf(RED);
+                        printf("!!!Error !!!\n");
+                        perror("malloc");
+                        printf(RESET);
+                    }
+                    filename = strdup(full_path);
+                }
+                else {
+                    printf("--------------------------------------\n");
+                    printf(RED"Failed to read CSV Path not Change use -->"GREEN"%s\n"RESET"",csv_name());
+                    printf("--------------------------------------\n");
+                }
+                enter_to_back();
+            }
+    else{
+        invalid();
+        change_csv_path();
     }
-    else {
-        printf("!!! Error !!!\n");
-        printf("--------------------------------------\n");
-        printf("Failed to read CSV Path not Change use -->%s\n",csv_name());
-        printf("--------------------------------------\n");
-    }
-    printf("\nPress Enter to go back to the menu...");
-    getchar();
 }
 
 
@@ -176,23 +235,102 @@ void list(){
     FILE *file = fopen(filename, "r");
     if (file == NULL){
         printf("--------------------------------------\n\n");
-        printf("\t%s\n\n", check_file());
-        printf("--------------------------------------\n");
-        printf("Press Enter to go back to the menu...\n");
-        getchar();
+        printf(RED"\t%s\n\n", check_file());
+        printf(RESET"--------------------------------------\n");
+        enter_to_back();
     }
     else{
         printf("--------------------------------------\n");
-        printf("\t     LIST CSV\n");
+        printf(GREEN"\t     LIST CSV\n"RESET);
         printf("--------------------------------------\n");
-        char line[256];
-        while (fgets(line, sizeof(line), file)) {
-            printf("|%s", line); // list all csv
-        }
+        printf("%-10s %-20s %-10s %-10s\n", "OrderID", "ProductName", "Quantity", "TotalPrice");
         fclose(file);
         printf("--------------------------------------\n");
-        printf("\nPress Enter to go back to the menu...");
-        getchar();
+        enter_to_back();
+    }
+}
+
+// struct list v2
+int read_data(){
+    FILE *file = fopen(filename, "r");
+    if (file == NULL){
+        printf("Error To open File : %s", filename);
+        perror("fopen");
+        return 1;
+    }
+    char line[1024];
+    fgets(line, sizeof(line), file); //  skip frist line
+    while (fgets(line, sizeof(line), file)){
+        if (product_capacity == product_count){
+            if (product_capacity == 0){
+                product_capacity = 10;
+            }
+            else{
+                product_capacity = product_capacity * 2;
+            }
+            products = realloc(products, product_capacity * sizeof(struct data_csv_st));
+            if(!products){
+                perror("realloc");
+                fclose(file);
+                return 1;
+            }
+        }
+
+        line[strcspn(line,"\n\r")] = '\0';
+        char *token = strtok(line,",");
+        int index = 0;
+        while (token)
+        {
+            switch (index)
+            {
+            case 0:
+                strcpy(products[product_count].OrderID ,token);
+                break;
+            case 1:
+                strcpy(products[product_count].ProductName, token);
+                break;
+            case 3:
+                products[product_count].Quantitiy = atoi(token);
+                break;
+            case 4:
+                products[product_count].TotalPrice = atoi(token);
+            default:
+                break;
+            }
+            token = strtok(NULL,",");
+            index++;
+        }
+        product_count++;
+    }
+    fclose(file);
+    return 0;
+}
+
+// create the file if not have raw_data.cvs File
+// Do in background at the startup Program
+void c_no_file_CSV(){
+    // printf("Checking File...\n");
+    FILE *file = fopen(filename, "r");
+    if (file != NULL){
+        cls();
+        return;
+    }
+    else{
+        char ac_file[256];
+        snprintf(ac_file,sizeof(ac_file),"../data/new_file.csv");
+        FILE *file = fopen(ac_file, "w");
+        if (file != NULL){
+            // printf("Create file -> %s\n",ac_file);
+            // printf("Create CSV_default...\n");
+            fprintf(file,"%s\n",csv_default);
+            fclose(file);
+            // printf("DONE!\n...Start-program");
+            filename = strdup(ac_file);
+            // delay(1.5);
+        }
+        else{
+            exit(0);
+        }
     }
 }
 
@@ -201,46 +339,47 @@ void cls(){
     system("cls||clear");
 }
 
-
+// NOT USE
 // delay to quit the program
 // TO DO DO save or Not 
-void delay_q(int d_value){
-    printf("Exit Program..[");
-    for(int i = d_value; i >= 1; i--){
-        printf("===");
-        delay(1);
-    }
-    printf("]");
-    printf("\n");
-    printf("Press Enter to EXIT...");
-    getchar();
-}
+// void delay_q(int d_value){
+//     printf("Exit Program..[");
+//     for(int i = d_value; i >= 1; i--){
+//         printf("===");
+//         delay(1);
+//     }
+//     printf("]");
+//     printf("\n");
+//     printf("Press Enter to EXIT...");
+//     getchar();
+// }
 
 // sleep to delay for me because i program robot LOL
 void delay(int delay){
     sleep(delay);
 }
 
-// Menu v1.5
+// Menu v3
 // printf("3. Add Data TO CSV\n");
 // printf("4. Search Data\n");
 // printf("6. Delete Data\n");
 void menu(){
     cls();
-    printf("==========================================\n");
-    printf("Welcome To Online Order Management System \n");
-    printf("==========================================\n\n");
-    printf("\t     --|Menu Panel|--\n");
-    printf("------------------------------------------\n");
-    printf("1. List Data IN CSV\n");
-    printf("2. Change file CSV\n");
-    printf("3. Back To Menu\n");
-    printf("4. Update Data / Search Data\n");
-    printf("5. !! Exit The Program !!\n");
-    printf("------------------------------------------\n\n");
+    printf(RESET);
+    printf(GREEN"==========================================\n"RESET);
+    printf(BLUE"Welcome To Online Order Management System \n"RESET);
+    printf(GREEN"==========================================\n\n"RESET);
+    printf(RESET"\t     --|Menu Panel|--\n");
+    printf(GREEN"------------------------------------------\n"RESET);
+    printf(YELLOW"1."RESET" List Data IN CSV\n");
+    printf(YELLOW"2."RESET" Change file CSV\n");
+    printf(YELLOW"3."RESET" Back To Menu\n");
+    printf(YELLOW"4."RESET" Update Data / Search Data\n");
+    printf(RED"5."RESET" !! Exit The Program !!\n");
+    printf(GREEN"------------------------------------------\n\n"RESET);
     printf("\t     Current Read CSV\n\n");
     printf("%s\n", check_file());
-    printf("==========================================\n");
+    printf(GREEN"==========================================\n"RESET);
     printf(" --> Enter your choice (1-5): ");
 }
 
@@ -249,9 +388,13 @@ void invalid(){
     cls();
     printf("\n");
     printf("******************************************\n");
-    printf("!!! Invalid choice. Please try again. !!!\n");
-    printf("******************************************\n\n");
-    printf("\nPress Enter to go back to the menu...");
+    printf(RED"!!! Invalid choice. Please try again. !!!\n");
+    printf(RESET"******************************************\n\n");
+    printf("Press "RED"Enter"RESET" to go back...\n");
     getchar();
 }
 
+void enter_to_back(){
+    printf("\nPress "RED"Enter"RESET" to go back to the menu...");
+    getchar();
+}
