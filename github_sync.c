@@ -1,4 +1,4 @@
-// github_sync.c
+// github_sync.c by-ChatGPT
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +13,7 @@
     "wget -q -O \"" output "\" \"" url "\""
 #endif
 
+//if ต้องการที่จะเปลี่ยน raw_data.csv
 #define LOCAL_PATH "../data/raw_data.csv"
 #define TEMP_PATH  "../data/temp.csv"
 #define REMOTE_URL "https://raw.githubusercontent.com/Applelyyyy/OOMS/main/data/raw_data.csv"

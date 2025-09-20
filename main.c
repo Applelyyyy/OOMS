@@ -107,14 +107,14 @@ int main() {
 //change file path CSV and create file if not have 
 void change_csv_path(){
     cls();
-    printf("--------------------------------------\n");
-    printf("Change CSV File(Path) and Create(NewFile)\n");
-    printf("--------------------------------------\n");
+    printf("-------------------------------------------\n\n");
+    printf("Change CSV File(Path) and Create(NewFile)\n\n");
+    printf("-------------------------------------------\n");
     printf("You want to continue ?\n");
-    printf("1. Continue\n");
-    printf("2. Go Back\n");
+    printf(GREEN"1. Continue\n"RESET);
+    printf(RED"2. Go Back\n"RESET);
     printf("--------------------------------------\n");
-    printf("--->");
+    printf("---> ");
     char input[256];
     int choice;
     if (fgets(input, sizeof(input), stdin) == NULL)
@@ -154,7 +154,7 @@ void change_csv_path(){
                         }
                         cls();
                         printf("--------------------------------------\n");
-                        printf("Change CSV File and Create\n");
+                        printf("Change CSV File and "YELLOW"Create\n"RESET);
                         printf("--------------------------------------\n");
                         printf("--------------------------------------\n");
                         printf("New CSV File Create! --> %s\n", full_path);
@@ -236,14 +236,14 @@ void list(){
         enter_to_back();
     }
     else{
-        printf("--------------------------------------\n");
+        printf("------------------------------------------------\n");
         printf(GREEN"\t     LIST CSV\n"RESET);
-        printf("--------------------------------------\n");
-        printf("%-10s %-20s %-10s %-10s\n", "OrderID", "ProductName", "Quantity", "TotalPrice");
+        printf("------------------------------------------------\n");
+        printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
         for (int i = 0; i < product_count; i++){
-        printf("%-10s %-20s %-10d %-10d\n",products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+        printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
         }
-        printf("--------------------------------------\n");
+        printf("------------------------------------------------\n");
         enter_to_back();
     }
 }
@@ -304,8 +304,8 @@ int read_data(){
     return 0;
 }
 
-// create the file if not have raw_data.cvs File
 // Do in background at the startup Program
+// create the file if not have raw_data.cvs File
 void c_no_file_CSV(){
     // printf("Checking File...\n");
     FILE *file = fopen(filename, "r");
@@ -321,24 +321,19 @@ void c_no_file_CSV(){
             filename = strdup(filename);
             read_data();
         }
-        // my to create new file
-        /*
-        char ac_file[256];
-        snprintf(ac_file,sizeof(ac_file),"../data/new_file.csv");
-        FILE *file = fopen(ac_file, "w");
-        if (file != NULL){
-            // printf("Create file -> %s\n",ac_file);
-            // printf("Create CSV_default...\n");
-            fprintf(file,"%s\n",csv_default);
-            fclose(file);
-            // printf("DONE!\n...Start-program");
-            filename = strdup(ac_file);
-            // delay(1.5);
-        }
         else{
-            exit(0);
+            char ac_file[256];
+            snprintf(ac_file,sizeof(ac_file),"../data/new_file.csv");// create new file if no file
+            FILE *file = fopen(ac_file, "w");
+            if (file != NULL){
+                fprintf(file,"%s\n",csv_default);
+                fclose(file);
+                filename = strdup(ac_file);
+            }
+            else{
+                exit(0);
+            }
         }
-        */
     }
 }
 
@@ -352,17 +347,17 @@ void delay(int delay){
     sleep(delay);
 }
 
-// Menu v3
 // printf("3. Add Data TO CSV\n");
 // printf("4. Search Data\n");
 // printf("6. Delete Data\n");
+// Menu v6
 void menu(){
     cls();
     printf(RESET);
     printf(GREEN"==========================================\n"RESET);
     printf(BLUE"Welcome To Online Order Management System \n"RESET);
     printf(GREEN"==========================================\n\n"RESET);
-    printf(RESET"\t     --|Menu Panel|--\n");
+    printf(RESET"\t     --|Menu Panel|--\n\n");
     printf(GREEN"------------------------------------------\n"RESET);
     printf(YELLOW"1."RESET" List Data IN CSV\n");
     printf(YELLOW"2."RESET" Change file CSV\n");
@@ -376,7 +371,7 @@ void menu(){
     printf(" --> Enter your choice (1-5): ");
 }
 
-// error input function
+// invalid input function enter to back
 void invalid(){
     cls();
     printf("\n");
@@ -386,14 +381,13 @@ void invalid(){
     printf("Press "RED"Enter"RESET" to go back...\n");
     getchar();
 }
-
+//function enter to back
 void enter_to_back(){
     printf("\nPress "RED"Enter"RESET" to go back to the menu...");
     getchar();
 }
 
-//start
-
+//for set loop not all in main
 void start(){
     cls();
 }

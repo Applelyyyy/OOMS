@@ -1,4 +1,4 @@
-// github_sync.h
+// github_sync.h by-ChatGPT
 #ifndef GITHUB_SYNC_H
 #define GITHUB_SYNC_H
 

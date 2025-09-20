@@ -65,7 +65,7 @@ cd output
 
 ## Version
 
-Current Version: V0.9.0-beta-09/18/2025
+Current Version: V0.9.1-beta-09/20/2025
 
 ### Changelog
 
@@ -76,3 +76,4 @@ Current Version: V0.9.0-beta-09/18/2025
 - **V0.6.5-beta-09/16/2025:** update menu display-V4
 - **V0.8.0-beta-09/18/2025:** Startup Create File and UI Change Path and User-makefriendly
 - **V0.9.0-beta-09/18/2025:** GitHub sync functionality; update CSV handling and compilation script
+- **V0.9.1-beta-09/20/2025:** update menu display-V6
