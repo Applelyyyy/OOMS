@@ -33,7 +33,7 @@ cd OOMS
 - Use auto Compile
 
 ```bash
-run.exe
+run.bat
 ```
 
 - manually Compile
