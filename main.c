@@ -85,12 +85,9 @@ int main() {
             change_csv_path();
             break;
         case 3:
-            cls();
-            break;
-        case 4:
         //Larg-update
             break;
-        case 5:
+        case 9:
             printf(RESET);
             cls();
             printf(RED"Press Enter to EXIT...");
@@ -108,13 +105,21 @@ int main() {
 void change_csv_path(){
     cls();
     printf("-------------------------------------------\n\n");
-    printf("Change CSV File(Path) and Create(NewFile)\n\n");
-    printf("-------------------------------------------\n");
-    printf("You want to continue ?\n");
+    printf(YELLOW"Change CSV File(Path) "RESET"and "GREEN"Create(NewFile)"RESET"\n\n");
+    printf("-------------------------------------------\n\n");
+    printf("\t  |- File in Folder -|\n\n");
+    printf("-------------------------------------------\n\n"YELLOW);
+    #ifdef _WIN32
+    system("dir /b ..\\data\\*.csv");
+    #else
+    system("ls ../data/*.csv");
+    #endif
+    printf(RESET"\n-------------------------------------------\n\n");
+    printf("You want to"YELLOW" continue ?\n"RESET"");
     printf(GREEN"1. Continue\n"RESET);
-    printf(RED"2. Go Back\n"RESET);
-    printf("--------------------------------------\n");
-    printf("---> ");
+    printf(RED"2. Go Back\n\n"RESET);
+    printf("-------------------------------------------\n");
+    printf(MAGENTA"---> "YELLOW"");
     char input[256];
     int choice;
     if (fgets(input, sizeof(input), stdin) == NULL)
@@ -128,7 +133,7 @@ void change_csv_path(){
                 start();
             }
             else if (choice == 1){
-                printf("Enter new CSV file path (relative to 'data' folder): ");
+                printf(RESET"Enter new CSV file path (relative to 'data' folder): "YELLOW);
                 char n_path[256];
                 if (fgets (n_path, sizeof(n_path), stdin) != NULL){
                     size_t len = strlen(n_path);
@@ -153,7 +158,7 @@ void change_csv_path(){
                             return;
                         }
                         cls();
-                        printf("--------------------------------------\n");
+                        printf(RESET"--------------------------------------\n");
                         printf("Change CSV File and "YELLOW"Create\n"RESET);
                         printf("--------------------------------------\n");
                         printf("--------------------------------------\n");
@@ -161,11 +166,11 @@ void change_csv_path(){
                         printf("--------------------------------------\n");
                         }
                     else {
-                        printf("--------------------------------------\n");
+                        printf(RESET"--------------------------------------\n");
                         printf("CSV file Found! and "GREEN"Loaded: %s\n"RESET, full_path);
                         printf("--------------------------------------\n");
                         fclose(file);
-                    }
+                        }
                     // Free previous filename if it was dynamically allocated
                     if (filename != NULL && filename != csv_default && filename != "../data/raw_data.csv") {
                     free(filename);
@@ -236,6 +241,11 @@ void list(){
         enter_to_back();
     }
     else{
+        free(products);
+        products = NULL; 
+        product_count = 0;
+        product_capacity = 0;
+        read_data();
         printf("------------------------------------------------\n");
         printf(GREEN"\t     LIST CSV\n"RESET);
         printf("------------------------------------------------\n");
@@ -361,14 +371,13 @@ void menu(){
     printf(GREEN"------------------------------------------\n"RESET);
     printf(YELLOW"1."RESET" List Data IN CSV\n");
     printf(YELLOW"2."RESET" Change file CSV\n");
-    printf(YELLOW"3."RESET" Back To Menu\n");
-    printf(YELLOW"4."RESET" Update Data / Search Data\n");
-    printf(RED"5."RESET" !! Exit The Program !!\n");
+    printf(YELLOW"3."RESET" Update Data / Search Data\n");
+    printf(RED"9."RESET" !! Exit The Program !!\n");
     printf(GREEN"------------------------------------------\n\n"RESET);
     printf("\t     Current Read CSV\n\n");
     printf("%s\n", check_file());
     printf(GREEN"==========================================\n"RESET);
-    printf(" --> Enter your choice (1-5): ");
+    printf(" --> Enter your choice (1-3,9): ");
 }
 
 // invalid input function enter to back

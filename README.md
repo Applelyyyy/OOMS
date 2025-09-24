@@ -8,14 +8,17 @@ OOMS is a command-line based Order Management System written in C. It helps mana
 
 ```plaintext
 OOMS/
-├── log/            # log error Compile
-├── data/           # Contains raw_data.csv and other data files
-├── output/         # Compiled executable
-├── main.c          # Source
-├── github_sync.h   # gitsync header 
-├── github_sync.c   # gitsync source file
-└── README.md       # Project documentation
-└── run.bat         # compile and run Program
+├── log/                    # log error Compile
+    ├──Compile_error.txt    # log file
+├── data/                   # Contains raw_data.csv and other data files
+    |--*.csv                # csv folder
+├── output/                 # Compiled Folder executable
+    ├──main.exe             # Compiled executable file
+├── main.c                  # Source
+├── github_sync.h           # gitsync header 
+├── github_sync.c           # gitsync source file
+└── README.md               # Project documentation
+└── run.bat                 # compile and run Program (Reccomend)
 ```
 
 ## 🚀 Getting Started
