@@ -1,5 +1,5 @@
 @echo off
-echo ! Compiling program...
+echo Compiling program...
 if not exist output (
     mkdir output
 )
@@ -16,6 +16,5 @@ if %errorlevel% neq 0 (
     pause
     exit /b
 )
-echo ✅ Compilation successful.
 start cmd /c "cd output && main.exe"
 exit

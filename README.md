@@ -15,6 +15,7 @@ OOMS/
 ├── github_sync.h   # gitsync header 
 ├── github_sync.c   # gitsync source file
 └── README.md       # Project documentation
+└── run.bat         # compile and run Program
 ```
 
 ## 🚀 Getting Started
@@ -36,26 +37,26 @@ cd OOMS
 run.bat
 ```
 
-- manually Compile
+## Manually Compile
 
-### 2.1 Manually  Compile
+2.1 Manually  Compile
 
-Ensure the `data/` folder contains `raw_data.csv`.  
+- Ensure the `data/` folder contains `raw_data.csv`.  
 If missing, the program will automatically download it from a predefined URL.
 
-### 2.2. Compile the Program
+- 2.2 Compile the Program
 
 ```bash
 gcc main.c github_sync.c -o output/main.exe
 ```
 
-### 2.3. Got to Folder output
+- 2.3. Got to Folder output
 
 ```bash
 cd output
 ```
 
-### 2.4. Run the Program
+- 2.4. Run the Program
 
 ```bash
 .\main.exe
