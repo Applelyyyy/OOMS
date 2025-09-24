@@ -81,3 +81,4 @@ Current Version: V0.9.1-beta-09/20/2025
 - **V0.8.0-beta-09/18/2025:** Startup Create File and UI Change Path and User-makefriendly
 - **V0.9.0-beta-09/18/2025:** GitHub sync functionality; update CSV handling and compilation script
 - **V0.9.1-beta-09/20/2025:** update menu display-V6
+- **V0.9.3-beta-09/24/2025:** update menu display-V7 and Refactor main program structure and add file listing functionality fix bug and better ui in change csv file

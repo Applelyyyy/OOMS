@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "*.embeddedhtml": "html",
-        "github_sync.h": "c",
-        "stat.h": "c",
-        "stdio.h": "c"
-    }
-}
