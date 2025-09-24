@@ -22,6 +22,7 @@
 #include "github_sync.h" //sync file CSV
 //-----------------
 // SETUP FUNCTION prototypes
+
 void cls();
 void delay(int delay);
 void menu();
@@ -31,11 +32,18 @@ void change_csv_path();
 char *csv_name();
 char *check_file();
 void enter_to_back();
-void c_no_file_CSV();
+void CreateifNoFile();
 void start();
+void loop2();
 int read_data();
 void p_quit();
 void ListFileFolder();
+void WDUMenu();
+int WDUChoice(char *input);
+void add_data();
+int save_file();
+int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quantitiy, const int TotalPrice);
+
 //-----------------
 // filename defult CSV
 char *filename = "../data/raw_data.csv";
@@ -74,10 +82,10 @@ struct data_csv_st *products = NULL;
 int main() {
     char input[256];
     int choice;
-    c_no_file_CSV();
+    CreateifNoFile();
+    read_data();
     do {
         start();
-        read_data();
         menu();
         if (fgets(input, sizeof(input), stdin) == NULL) {
             invalid();
@@ -95,7 +103,7 @@ int main() {
             change_csv_path();
             break;
         case 3:
-        //Larg-update
+            WDUMenu();
             break;
         case 4:
             cls();
@@ -210,7 +218,7 @@ void change_csv_path(){
     }
 }
 
-// real name file
+// Get real name file csv
 char *csv_name() {
     static char r_name[256];
     const char *base_name = strrchr(filename, '/');
@@ -228,7 +236,7 @@ char *csv_name() {
     return 0;
 }
 
-//check file path
+//check file path if file Deleat or change name
 char *check_file(){
     FILE *file = fopen(filename, "r");
     if (file == NULL){
@@ -252,11 +260,6 @@ void list(){
         enter_to_back();
     }
     else{
-        free(products);
-        products = NULL; 
-        product_count = 0;
-        product_capacity = 0;
-        read_data();
         printf("----------------------------------------------------------\n");
         printf(GREEN"\t           LIST CSV\n"RESET);
         printf("----------------------------------------------------------\n");
@@ -269,8 +272,15 @@ void list(){
     }
 }
 
-// struct list v2
+// struct list read data v2
 int read_data(){
+    if (products != NULL) {
+        free(products);
+        products = NULL;
+    }
+    product_count = 0;
+    product_capacity = 0;
+
     FILE *file = fopen(filename, "r");
     if (file == NULL){
         printf("Error To open File : %s", filename);
@@ -327,7 +337,7 @@ int read_data(){
 
 // Do in background at the startup Program
 // create the file if not have raw_data.cvs File
-void c_no_file_CSV(){
+void CreateifNoFile(){
     // printf("Checking File...\n");
     FILE *file = fopen(filename, "r");
     if (file != NULL){
@@ -358,10 +368,219 @@ void c_no_file_CSV(){
     }
 }
 
+//Save file Function
+int save_file(){
+    FILE *file = fopen(filename, "w");
+    if (!file){
+        perror("fopen");
+        return 1;
+    }
+    fprintf(file, "%s\n", csv_default);
+    for (int i = 0; i < product_count; i++){
+        fprintf(file,"%s,%s,%d,%d\n",
+        products[i].OrderID,
+        products[i].ProductName,
+        products[i].Quantitiy,
+        products[i].TotalPrice
+        );
+    }
+    fclose(file);
+    return 0;
+}
+
+//Save data to File Function
+int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quantitiy, const int TotalPrice){
+
+    for(int i = 0; i<product_count; i++){
+        if(strcmp(products[i].OrderID,OrderID) == 0){
+            return 1;
+        }
+
+    }
+    if (product_capacity == product_count){
+        if (product_capacity == 0){
+            product_capacity = 10;
+        }
+        else{
+            product_capacity = product_capacity * 2;
+        }
+        products = realloc(products, product_capacity * sizeof(struct data_csv_st));
+        if(!products){
+            perror("realloc");
+            return 1;
+            }
+    }
+    // start add
+    strcpy(products[product_count].OrderID, OrderID);
+    strcpy(products[product_count].ProductName, ProductName);
+    products[product_count].Quantitiy = Quantitiy;
+    products[product_count].TotalPrice = TotalPrice;
+    product_count++;
+    //want to save ?
+    char input[16];
+    cls();
+    printf(CYAN"\n\n");
+    printf(BLUE"|- Save Data ? -| \n\n"RESET);
+    printf(CYAN"\n\n"RESET);
+    printf(YELLOW"Save before exit?\n"RESET);
+    printf(GREEN"1. Save and go back\n"RESET);
+    printf(RED"2. Discard and go back\n"RESET);
+    printf(" --> Enter your choice (1-2): "YELLOW);
+    while(1){
+        fgets(input, sizeof(input), stdin);
+        int choice = atoi(input);
+        if (choice == 1) {
+                printf(RESET);
+                save_file();
+                cls();
+                printf(CYAN"\n\n");
+                printf(BLUE"|- Save Data ? -| \n\n"RESET);
+                printf(CYAN"\n\n"RESET);
+                printf(GREEN"Saved Data.\n"RESET);
+            } 
+        else if (choice == 2) {
+                printf(RESET);
+                free(products);
+                product_count = 0;
+                product_capacity = 0;
+                products = NULL;
+                cls();
+                printf(CYAN"\n\n");
+                printf(BLUE"|- Save Data ? -| \n\n"RESET);
+                printf(CYAN"\n\n"RESET);
+                printf(RED"Discarded to save.\n"RESET);
+                return 0;
+            }
+        break;
+    }
+}
+
+
+//Add data to csv current
+void add_data(){
+    cls();
+    char OrderID[50];
+    char ProductName[100];
+    int Quantitiy;
+    int TotalPrice;
+
+    printf("\n\n");
+    printf(GREEN"- Add Data To CSV -"RESET);
+    printf("\n\n");
+    printf(CYAN"------------------------------------------\n"RESET);
+    //input product ID
+    while (1) {
+    printf("Enter Product ID ["RED"!q"RESET" to cancel]: "YELLOW"");
+    fgets(OrderID, sizeof(OrderID), stdin);
+    OrderID[strcspn(OrderID, "\r\n")] = '\0';
+
+    //cancel
+    if(strcmp(OrderID, "!q") == 0){
+        enter_to_back();
+        return;
+    }
+    // check for blank OrderID
+    if (OrderID[0] == '\0' || strspn(OrderID, " ") == strlen(OrderID)) {
+        printf(RED"OrderID cannot be blank! Please try again.\n"RESET);
+        continue;
+    }
+    // check if have duplicate OrderID
+    int is_duplicate = 0;
+    for(int i = 0; i < product_count; i++){
+        if(strcmp(products[i].OrderID,OrderID) == 0){
+            printf(YELLOW"OrderID Duplicate "RED"can't be This OrderID. Please try again.\n"RESET);
+            is_duplicate = 1;
+            break;
+        }
+    }
+    if (is_duplicate) continue;
+    break; // valid OrderID
+    }
+    while(1){
+        printf(RESET"Enter Product Name: "YELLOW"");
+        fgets(ProductName,sizeof(ProductName), stdin);
+        ProductName[strcspn(ProductName, "\r\n")] = '\0';
+        if (ProductName[0] == '\0' || strspn(ProductName, " ") == strlen(ProductName)) {
+        printf(RED"Product Name cannot be blank! Please try again.\n"RESET);
+        continue;
+        }
+        break;
+    }
+
+    printf(RESET"Enter Quantity: "YELLOW"");
+    char qty_str[16];
+    int valid = 0;
+    while (!valid) {
+    fgets(qty_str, sizeof(qty_str), stdin);
+    Quantitiy = atoi(qty_str);
+    if (Quantitiy > 0) {
+        valid = 1;
+    } 
+    else {
+        printf(RED"Invalid input. Please enter a positive integer for Quantity \n"RESET);
+        printf(RED"!!! Invalid choice. Please try again. !!!\n");
+        printf(RESET"Enter Quantity: "YELLOW"");
+    }  
+    }
+    printf(RESET"Enter TotalPrice: "YELLOW"");
+    char price_str[16];
+    valid = 0;
+    while (!valid)
+    {
+        fgets(price_str, sizeof(price_str), stdin);
+        TotalPrice = atoi(price_str);
+        if (TotalPrice > 0){
+            valid = 1;
+        }
+        else {
+            printf(RED"Invalid input. Please enter a positive integer for Quantity \n"RESET);
+            printf(RED"!!! Invalid choice. Please try again. !!!\n");
+            printf(RESET"Enter TotalPrice: "YELLOW"");
+        }
+    }
+    int result = SaveDataToFile(OrderID, ProductName, Quantitiy, TotalPrice);
+    if (result == 1) {
+        printf(RED"Failed to add data.\n"RESET);
+    }
+    enter_to_back();
+}
 
 // sleep to delay for me because i program robot LOL
 void delay(int delay){
     sleep(delay);
+}
+
+// WDU Menu choice
+
+int WDUChoice(char *input) {
+    int choice = atoi(input);
+    switch (choice) {
+        case 1:
+            cls();
+            add_data();
+            break;
+        case 2:
+            cls();
+            printf(GREEN"Delete Data functionality not implemented yet.\n"RESET);
+            break;
+        case 3:
+            cls();
+            printf(GREEN"Save Data functionality not implemented yet.\n"RESET);
+            break;
+        case 4:
+            cls();
+            printf(GREEN"Remove File functionality not implemented yet.\n"RESET);
+            break;
+        case 5:
+            list();
+            break;
+        case 9:
+            cls();
+            main();
+        default:
+            invalid();
+    }
+    return 0;
 }
 
 
@@ -369,16 +588,45 @@ void delay(int delay){
 
 
 
-// printf("3. Add Data TO CSV\n");
-// printf("4. Search Data\n");
-// printf("6. Delete Data\n");
-// Menu v6
+
+void WDUMenu(){
+    char input[256];
+    while (1)
+    {
+        cls();
+        printf(RESET);
+        printf(CYAN"\n\n"RESET);
+        printf(BLUE" |- Update Data / Search Data -|\n\n"RESET);
+        printf(CYAN"\n\n"RESET);
+        printf(CYAN"------------------------------------------\n"RESET);
+        printf(YELLOW"1."RESET" ADD Data\n");
+        printf(YELLOW"2."RESET" Delete Data\n");
+        printf(YELLOW"3."RESET" Save Data\n");
+        printf(YELLOW"4."RESET" Remove File\n");
+        printf(YELLOW"5."RESET" List Data IN CSV\n");
+        printf(RED"9."RESET" !! Go Back !!\n");
+        printf(CYAN"------------------------------------------\n\n"RESET);
+        printf("\t     [Current Edit CSV]\n\n");
+        printf("%s\n", check_file());
+        printf(CYAN"==========================================\n"RESET);
+        printf(" --> Enter your choice (1-5,9): ");
+        if (fgets(input, sizeof(input), stdin) != NULL) {
+                WDUChoice(input);
+            } else {
+                invalid();
+                continue;
+            }
+    }
+}
+
+
+// Base Menu v6
 void menu(){
     cls();
     printf(RESET);
-    printf(CYAN"==========================================\n"RESET);
-    printf(BLUE"Welcome To Online Order Management System \n"RESET);
-    printf(CYAN"==========================================\n\n"RESET);
+    printf(CYAN"\n\n");
+    printf(BLUE" |- Welcome To Online Order Management System -| \n\n"RESET);
+    printf(CYAN"\n\n"RESET);
     printf(RESET"\t     --|Menu Panel|--\n\n");
     printf(CYAN"------------------------------------------\n"RESET);
     printf(YELLOW"1."RESET" List Data IN CSV\n");
@@ -390,7 +638,7 @@ void menu(){
     printf("\t     [Current Read CSV]\n\n");
     printf("%s\n", check_file());
     printf(CYAN"==========================================\n"RESET);
-    printf(" --> Enter your choice (1-3,9): ");
+    printf(" --> Enter your choice (1-4,9): ");
 }
 
 // invalid input function enter to back
@@ -464,6 +712,12 @@ void ListFileFolder(){
 
 //for set loop not all in main
 void start(){
+    cls();
+}
+
+
+//loop the function HARDCODE
+void loop2(){
     cls();
 }
 
