@@ -11,7 +11,7 @@ OOMS/
 ├── log/                        # log error Compile
     ├── Compile_error.txt       # log file
 ├── data/                       # Contains raw_data.csv and other data files
-    |-- *.csv                   # csv folder
+    ├── *.csv                   # csv folder
 ├── output/                     # Compiled Folder executable
     ├── main.exe                # Compiled executable file
 ├── main.c                      # Source
