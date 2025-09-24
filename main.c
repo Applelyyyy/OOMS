@@ -565,7 +565,7 @@ int WDUChoice(char *input) {
             break;
         case 3:
             cls();
-            printf(GREEN"Save Data functionality not implemented yet.\n"RESET);
+            printf(GREEN"Search Data functionality not implemented yet.\n"RESET);
             break;
         case 4:
             cls();
@@ -601,7 +601,7 @@ void WDUMenu(){
         printf(CYAN"------------------------------------------\n"RESET);
         printf(YELLOW"1."RESET" ADD Data\n");
         printf(YELLOW"2."RESET" Delete Data\n");
-        printf(YELLOW"3."RESET" Save Data\n");
+        printf(YELLOW"3."RESET" Search Data\n");
         printf(YELLOW"4."RESET" Remove File\n");
         printf(YELLOW"5."RESET" List Data IN CSV\n");
         printf(RED"9."RESET" !! Go Back !!\n");
