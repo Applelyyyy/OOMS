@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "github_sync.h" //sync file CSV
+#include <ctype.h>
 //-----------------
 // SETUP FUNCTION prototypes
 
@@ -43,6 +44,10 @@ int WDUChoice(char *input);
 void add_data();
 int save_file();
 int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quantitiy, const int TotalPrice);
+void search_data();
+void to_lowercase(char *str);
+void delete_data();
+void remove_file();
 
 //-----------------
 // filename defult CSV
@@ -111,7 +116,7 @@ int main() {
             enter_to_back();
             break;
         case 9:
-            p_quit();
+            exit(0);
         default:
             invalid();
         }
@@ -148,12 +153,16 @@ void change_csv_path(){
                 cls();
                 printf(YELLOW"     Change CSV File(Path) "RESET"and "GREEN"Create(NewFile)"RESET"\n\n");
                 ListFileFolder();
-                printf(RESET"Enter new CSV file path (relative to 'data' folder): "YELLOW);
+                printf(RESET"Enter new CSV file path (relative to 'data' folder ["RED"!q to Exit"RESET"]): "YELLOW);
                 char n_path[256];
                 if (fgets (n_path, sizeof(n_path), stdin) != NULL){
                     size_t len = strlen(n_path);
                     if (len > 0 && n_path[len - 1] == '\n'){
                         n_path[len - 1] = '\0';
+                    }
+                    if(strcmp(n_path, "!q") == 0){
+                        enter_to_back();
+                        return;
                     }
                     //create file
                     char full_path[512];
@@ -561,26 +570,408 @@ int WDUChoice(char *input) {
             break;
         case 2:
             cls();
-            printf(GREEN"Delete Data functionality not implemented yet.\n"RESET);
+            delete_data();
             break;
         case 3:
             cls();
-            printf(GREEN"Search Data functionality not implemented yet.\n"RESET);
+            search_data();
             break;
         case 4:
-            cls();
-            printf(GREEN"Remove File functionality not implemented yet.\n"RESET);
+            printf(GREEN"Update data functionality not implemented yet.\n"RESET);
             break;
         case 5:
+            read_data();
             list();
             break;
-        case 9:
+        case 6:
             cls();
             main();
         default:
             invalid();
     }
     return 0;
+}
+
+// Add this function to convert a string to lowercase
+void to_lowercase(char *str) {
+    for (int i = 0; str[i]; i++) {
+        str[i] = tolower((unsigned char)str[i]);
+    }
+}
+
+// Updated search_data function
+void search_data() {
+    cls();
+    char search_term[100];
+    int found;
+
+    printf("\n\n");
+    printf(GREEN"- Search Data in CSV -"RESET);
+    printf("\n\n");
+    printf(CYAN"------------------------------------------\n"RESET);
+
+    while (1) {
+        found = 0; // Reset the found flag for each search attempt
+
+        
+        printf("Enter "YELLOW"OrderID"RESET" or "YELLOW"ProductName"RESET" to search ["RED"!q"RESET" to cancel]: "YELLOW"");
+        fgets(search_term, sizeof(search_term), stdin);
+        search_term[strcspn(search_term, "\r\n")] = '\0';
+
+
+        if (strcmp(search_term, "!q") == 0) {
+            enter_to_back();
+            return;
+        }
+
+        
+        to_lowercase(search_term);
+
+        cls();
+        printf("----------------------------------------------------------\n");
+        printf(GREEN"\t           SEARCH RESULTS\n"RESET);
+        printf("----------------------------------------------------------\n");
+        printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+
+        // Search through the products array
+        for (int i = 0; i < product_count; i++) {
+            char lower_order_id[50];
+            char lower_product_name[100];
+
+            // Convert OrderID and ProductName to lowercase for comparison
+            strcpy(lower_order_id, products[i].OrderID);
+            strcpy(lower_product_name, products[i].ProductName);
+            to_lowercase(lower_order_id);
+            to_lowercase(lower_product_name);
+
+            if (strstr(lower_order_id, search_term) || strstr(lower_product_name, search_term)) {
+                printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                        products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+                found = 1;
+            }
+        }
+
+        if (!found) {
+            printf(RED"No matching data found for: %s\n"RESET, search_term);
+            printf("----------------------------------------------------------\n");
+            printf(YELLOW"Please try again or type '!q' to quit.\n"RESET);
+        } else {
+            printf("----------------------------------------------------------\n");
+            enter_to_back();
+            return;
+        }
+    }
+}
+
+// Delete data forn line
+void delete_data() {
+    cls();
+    
+    //how all data in the CSV
+    printf("\n\n");
+    printf(RED"- Delete Data from CSV -"RESET);
+    printf("\n\n");
+    printf(CYAN"------------------------------------------\n"RESET);
+    printf(YELLOW"Current data in CSV file:\n"RESET);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+    printf("----------------------------------------------------------\n");
+    
+
+    if (product_count == 0) {
+        printf(RED"No data available in the CSV file.\n"RESET);
+        printf("----------------------------------------------------------\n");
+        enter_to_back();
+        return;
+    }
+    
+    for (int i = 0; i < product_count; i++) {
+        printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+    }
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"Total records: %d\n\n"RESET, product_count);
+    
+    char search_term[100];
+    int found_indices[1000]; 
+    int found_count = 0;
+
+    while (1) {
+        found_count = 0; 
+
+       
+        printf("Enter "YELLOW"OrderID"RESET" to search for deletion ["RED"!q"RESET" to cancel]: "YELLOW"");
+        fgets(search_term, sizeof(search_term), stdin);
+        search_term[strcspn(search_term, "\r\n")] = '\0';
+
+       
+        if (strcmp(search_term, "!q") == 0) {
+            enter_to_back();
+            return;
+        }
+
+        
+        if (search_term[0] == '\0' || strspn(search_term, " ") == strlen(search_term)) {
+            printf(RED"OrderID cannot be blank! Please try again.\n"RESET);
+            continue;
+        }
+
+        to_lowercase(search_term);
+
+        cls();
+        printf("----------------------------------------------------------\n");
+        printf(RED"\t           DELETE SEARCH RESULTS\n"RESET);
+        printf("----------------------------------------------------------\n");
+        printf(YELLOW"Search OrderID: '%s'\n"RESET, search_term);
+        printf("----------------------------------------------------------\n");
+        printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+
+        
+        for (int i = 0; i < product_count; i++) {
+            char lower_order_id[50];
+
+            
+            strcpy(lower_order_id, products[i].OrderID);
+            to_lowercase(lower_order_id);
+
+            if (strstr(lower_order_id, search_term)) {
+                printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                        products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+                found_indices[found_count] = i;
+                found_count++;
+            }
+        }
+
+        if (found_count == 0) {
+            printf(RED"No matching OrderID found for: %s\n"RESET, search_term);
+            printf("----------------------------------------------------------\n");
+            printf(YELLOW"Please try again or type '!q' to quit.\n"RESET);
+        } 
+        else {
+            printf("----------------------------------------------------------\n");
+            printf(YELLOW"Found %d item(s) with matching OrderID.\n"RESET, found_count);
+            printf(RED"Do you want to DELETE these items? (y/N): "YELLOW"");
+            
+            char confirm[10];
+            fgets(confirm, sizeof(confirm), stdin);
+            confirm[strcspn(confirm, "\r\n")] = '\0';
+            
+            if (strcmp(confirm, "y") == 0 || strcmp(confirm, "Y") == 0) {
+
+                for (int i = found_count - 1; i >= 0; i--) {
+                    int index_to_delete = found_indices[i];
+                    
+
+                    for (int j = index_to_delete; j < product_count - 1; j++) {
+                        products[j] = products[j + 1];
+                    }
+                    product_count--;
+                }
+                
+                if (product_count > 0) {
+                    products = realloc(products, product_count * sizeof(struct data_csv_st));
+                    if (products == NULL && product_count > 0) {
+                        printf(RED"Memory reallocation failed!\n"RESET);
+                        enter_to_back();
+                        return;
+                    }
+                } else {
+                    free(products);
+                    products = NULL;
+                    product_capacity = 0;
+                }
+                
+                char save_input[16];
+                cls();
+                printf(CYAN"\n\n");
+                printf(RED"|- Delete Confirmation -| \n\n"RESET);
+                printf(CYAN"\n\n"RESET);
+                printf(RED"Successfully deleted %d item(s) from memory.\n\n"RESET, found_count);
+                printf(YELLOW"Do you want to save changes to CSV file?\n"RESET);
+                printf(GREEN"1. Save to CSV file and go back\n"RESET);
+                printf(RED"2. Don't save to CSV (changes will be lost) and go back\n"RESET);
+                printf(" --> Enter your choice (1-2): "YELLOW"");
+                
+                while(1) {
+                    fgets(save_input, sizeof(save_input), stdin);
+                    int save_choice = atoi(save_input);
+                    
+                    if (save_choice == 1) {
+                        printf(RESET);
+                        int save_result = save_file();
+                        cls();
+                        printf(CYAN"\n\n");
+                        printf(RED"|- Delete Confirmation -| \n\n"RESET);
+                        printf(CYAN"\n\n"RESET);
+                        if (save_result == 0) {
+                            printf(GREEN"Changes saved to CSV file successfully.\n"RESET);
+                            printf(GREEN"Deleted %d item(s) permanently.\n"RESET, found_count);
+                        } else {
+                            printf(RED"Error saving to CSV file!\n"RESET);
+                        }
+                        enter_to_back();
+                        return;
+                    } 
+                    else if (save_choice == 2) {
+                        printf(RESET);
+                        free(products);
+                        products = NULL;
+                        product_count = 0;
+                        product_capacity = 0;
+                        read_data();
+                        cls();
+                        printf(CYAN"\n\n");
+                        printf(RED"|- Delete Confirmation -| \n\n"RESET);
+                        printf(CYAN"\n\n"RESET);
+                        printf(YELLOW"Changes NOT saved to CSV file.\n"RESET);
+                        printf(YELLOW"Data restored from file. Nothing was permanently deleted.\n"RESET);
+                        enter_to_back();
+                        return;
+                    }
+                    else {
+                        printf(RED"Invalid choice. Please enter 1 or 2: "YELLOW"");
+                    }
+                }
+            } else {
+                printf(RESET);
+                printf(GREEN"Deletion cancelled. No data was removed.\n"RESET);
+                enter_to_back();
+                return;
+            }
+        }
+    }
+}
+
+// remove file in data folder
+void remove_file() {
+    cls();
+    printf("\n\n");
+    printf(RED"- Remove CSV Files from Data Folder -"RESET);
+    printf("\n\n");
+    printf(CYAN"------------------------------------------\n"RESET);
+    
+    printf(YELLOW"Available CSV files in data folder:\n"RESET);
+    printf("===============================================\n");
+    
+    #ifdef _WIN32
+    system("dir /b ..\\data\\*.csv 2>nul");
+    #else
+    system("ls ../data/*.csv 2>/dev/null");
+    #endif
+    
+    printf("===============================================\n\n");
+    
+    char file_to_remove[256];
+    char full_path[512];
+    char confirm[10];
+    
+    while (1) {
+        printf("Enter CSV filename to remove (without .csv extension) ["RED"!q"RESET" to cancel]: "YELLOW"");
+        fgets(file_to_remove, sizeof(file_to_remove), stdin);
+        file_to_remove[strcspn(file_to_remove, "\r\n")] = '\0';
+        
+        if (strcmp(file_to_remove, "!q") == 0) {
+            enter_to_back();
+            return;
+        }
+        
+        if (file_to_remove[0] == '\0' || strspn(file_to_remove, " ") == strlen(file_to_remove)) {
+            printf(RED"Filename cannot be blank! Please try again.\n"RESET);
+            continue;
+        }
+        
+        snprintf(full_path, sizeof(full_path), "../data/%s.csv", file_to_remove);
+        
+        FILE *file = fopen(full_path, "r");
+        if (file == NULL) {
+            printf(RED"File '%s.csv' not found in data folder! Please try again.\n"RESET, file_to_remove);
+            continue;
+        }
+        fclose(file);
+        
+        char current_file[256];
+        const char *base_name = strrchr(filename, '/');
+        if (!base_name) {
+            base_name = filename;
+        } else {
+            base_name++;
+        }
+        strncpy(current_file, base_name, sizeof(current_file));
+        
+        char target_file[256];
+        snprintf(target_file, sizeof(target_file), "%s.csv", file_to_remove);
+        
+        printf(RESET"\n");
+        printf(YELLOW"Target file: %s\n"RESET, full_path);
+        printf(YELLOW"Current file: %s\n\n"RESET, filename);
+        
+        if (strcmp(current_file, target_file) == 0) {
+            printf(RED"WARNING: You are trying to remove the currently loaded CSV file!\n"RESET);
+            printf(RED"This will cause the program to reload with default settings.\n\n"RESET);
+        }
+        
+        if (strcmp(file_to_remove, "raw_data") == 0) {
+            printf(RED"WARNING: You are trying to remove 'raw_data.csv' (default file)!\n"RESET);
+            printf(RED"This will cause the program to reset to initial state.\n\n"RESET);
+        }
+        
+        printf(RED"Are you sure you want to DELETE '%s.csv'? This action cannot be undone!\n"RESET, file_to_remove);
+        printf(YELLOW"Type 'y' to confirm deletion, or anything else to cancel: "YELLOW"");
+        
+        fgets(confirm, sizeof(confirm), stdin);
+        confirm[strcspn(confirm, "\r\n")] = '\0';
+        
+        if (strcmp(confirm, "y") == 0 || strcmp(confirm, "Y") == 0) {
+            if (remove(full_path) == 0) {
+                cls();
+                printf(CYAN"\n\n");
+                printf(RED"|- File Removal Confirmation -|\n\n"RESET);
+                printf(CYAN"\n"RESET);
+                printf(GREEN"Successfully deleted: %s\n\n"RESET, full_path);
+                
+                if (strcmp(current_file, target_file) == 0 || strcmp(file_to_remove, "raw_data") == 0) {
+                    printf(YELLOW"Program will now reload due to file removal...\n\n"RESET);
+                    printf(RED"Press Enter to restart the program..."RESET);
+                    getchar();
+                    
+                    if (products != NULL) {
+                        free(products);
+                        products = NULL;
+                    }
+                    product_count = 0;
+                    product_capacity = 0;
+                    
+                    if (filename != NULL && filename != "../data/raw_data.csv") {
+                        free(filename);
+                    }
+                    filename = "../data/raw_data.csv";
+                    
+                    // Restart the program
+                    cls();
+                    main();
+                    return;
+                } else {
+                    printf(GREEN"File removed successfully. Current program state unchanged.\n"RESET);
+                }
+            } else {
+                cls();
+                printf(CYAN"\n\n");
+                printf(RED"|- File Removal Error -|\n\n"RESET);
+                printf(CYAN"\n"RESET);
+                printf(RED"Error: Could not delete file '%s'\n"RESET, full_path);
+                printf(RED"The file may be in use or you may not have permission.\n"RESET);
+            }
+        } else {
+            cls();
+            printf(CYAN"\n\n");
+            printf(GREEN"|- File Removal Cancelled -|\n\n"RESET);
+            printf(CYAN"\n"RESET);
+            printf(GREEN"File removal cancelled. No files were deleted.\n"RESET);
+        }
+        
+        enter_to_back();
+        return;
+    }
 }
 
 
@@ -597,12 +988,12 @@ void WDUMenu(){
         printf(RESET);
         printf(CYAN"\n\n"RESET);
         printf(BLUE" |- Update Data / Search Data -|\n\n"RESET);
-        printf(CYAN"\n\n"RESET);
+        printf(CYAN"\n"RESET);
         printf(CYAN"------------------------------------------\n"RESET);
         printf(YELLOW"1."RESET" ADD Data\n");
         printf(YELLOW"2."RESET" Delete Data\n");
         printf(YELLOW"3."RESET" Search Data\n");
-        printf(YELLOW"4."RESET" Remove File\n");
+        printf(YELLOW"4."RESET" Update data\n");
         printf(YELLOW"5."RESET" List Data IN CSV\n");
         printf(RED"9."RESET" !! Go Back !!\n");
         printf(CYAN"------------------------------------------\n\n"RESET);
@@ -626,7 +1017,7 @@ void menu(){
     printf(RESET);
     printf(CYAN"\n\n");
     printf(BLUE" |- Welcome To Online Order Management System -| \n\n"RESET);
-    printf(CYAN"\n\n"RESET);
+    printf(CYAN"\n"RESET);
     printf(RESET"\t     --|Menu Panel|--\n\n");
     printf(CYAN"------------------------------------------\n"RESET);
     printf(YELLOW"1."RESET" List Data IN CSV\n");
