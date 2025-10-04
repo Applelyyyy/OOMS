@@ -1,17 +1,4 @@
-//plan v2
-// 1. list
-// 2. change path
-// 3. go back to menu
-// 4. update/Search csv -> 1.listv2 2.Search 3.add data -> if yes add 4.delete if yes -> delete 
-// 5 -> 3,6,save
 
-// log to do
-// DONE Menu v0.1
-// DONE Menu v0.5
-// Done read the file csv v1
-// done change path file v-beta
-// done load file csv and change path
-// todo make plan 4
 
 
 //-----------------
@@ -48,6 +35,7 @@ void search_data();
 void to_lowercase(char *str);
 void delete_data();
 void remove_file();
+void update_data();
 
 //-----------------
 // filename defult CSV
@@ -273,9 +261,17 @@ void list(){
         printf(GREEN"\t           LIST CSV\n"RESET);
         printf("----------------------------------------------------------\n");
         printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+        int grand_total = 0;
         for (int i = 0; i < product_count; i++){
-        printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+            printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+            grand_total += products[i].TotalPrice;
         }
+        
+        printf("----------------------------------------------------------\n");
+        printf(GREEN"%-10s %-20s %-10s "YELLOW"%-10d\n"RESET, "", "", "TOTAL:", grand_total);
+        printf("----------------------------------------------------------\n");
+        printf(YELLOW"Total Records: %d | Grand Total Price: %d\n"RESET, product_count, grand_total);
         printf("----------------------------------------------------------\n");
         enter_to_back();
     }
@@ -460,6 +456,11 @@ int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quant
                 printf(RED"Discarded to save.\n"RESET);
                 return 0;
             }
+            else{
+                printf(RED"!!! Invalid choice. Please try again. !!!\n"RESET);
+                printf(" --> Enter your choice (1-2): "YELLOW);
+                continue;
+            }
         break;
     }
 }
@@ -577,13 +578,13 @@ int WDUChoice(char *input) {
             search_data();
             break;
         case 4:
-            printf(GREEN"Update data functionality not implemented yet.\n"RESET);
+            update_data();
             break;
         case 5:
             read_data();
             list();
             break;
-        case 6:
+        case 9:
             cls();
             main();
         default:
@@ -842,7 +843,7 @@ void delete_data() {
     }
 }
 
-// remove file in data folder
+// remove file in data folder Permission Error Not USe
 void remove_file() {
     cls();
     printf("\n\n");
@@ -973,6 +974,300 @@ void remove_file() {
         return;
     }
 }
+
+//Update data
+void update_data() {
+    cls();
+    
+    // Show all data in the CSV
+    printf("\n\n");
+    printf(GREEN"- Update Data in CSV -"RESET);
+    printf("\n\n");
+    printf(CYAN"------------------------------------------\n"RESET);
+    printf(YELLOW"Current data in CSV file:\n"RESET);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+    printf("----------------------------------------------------------\n");
+    
+    if (product_count == 0) {
+        printf(RED"No data available in the CSV file.\n"RESET);
+        printf("----------------------------------------------------------\n");
+        enter_to_back();
+        return;
+    }
+    
+    for (int i = 0; i < product_count; i++) {
+        printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+    }
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"Total records: %d\n\n"RESET, product_count);
+    
+    char search_orderid[50];
+    int found_index = -1;
+
+    while (1) {
+        // Get OrderID to update
+        printf("Enter "YELLOW"OrderID"RESET" to update ["RED"!q"RESET" to cancel]: "YELLOW"");
+        fgets(search_orderid, sizeof(search_orderid), stdin);
+        search_orderid[strcspn(search_orderid, "\r\n")] = '\0';
+
+        // Cancel option
+        if (strcmp(search_orderid, "!q") == 0) {
+            enter_to_back();
+            return;
+        }
+
+        // Check for blank OrderID
+        if (search_orderid[0] == '\0' || strspn(search_orderid, " ") == strlen(search_orderid)) {
+            printf(RED"OrderID cannot be blank! Please try again.\n"RESET);
+            continue;
+        }
+
+        // Find the OrderID
+        for (int i = 0; i < product_count; i++) {
+            if (strcmp(products[i].OrderID, search_orderid) == 0) {
+                found_index = i;
+                break;
+            }
+        }
+
+        if (found_index == -1) {
+            printf(RED"OrderID '%s' not found! Please try again.\n"RESET, search_orderid);
+            continue;
+        }
+
+        break; // OrderID found, exit loop
+    }
+
+    // Display current data for the found OrderID
+    cls();
+    printf("----------------------------------------------------------\n");
+    printf(GREEN"\t           UPDATE DATA\n"RESET);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"Current data for OrderID: %s\n"RESET, search_orderid);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+    printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+            products[found_index].OrderID, products[found_index].ProductName, 
+            products[found_index].Quantitiy, products[found_index].TotalPrice);
+    printf("----------------------------------------------------------\n\n");
+
+    // Get new data from user
+    char new_OrderID[50];
+    char new_ProductName[100];
+    int new_Quantity;
+    int new_TotalPrice;
+
+    printf(GREEN"Enter new data (press Enter to keep current value):\n\n"RESET);
+
+    // Update OrderID
+    while (1) {
+        printf("Current OrderID: "YELLOW"%s"RESET"\n", products[found_index].OrderID);
+        printf("Enter new OrderID ["RED"!q"RESET" to cancel]: "YELLOW"");
+        fgets(new_OrderID, sizeof(new_OrderID), stdin);
+        new_OrderID[strcspn(new_OrderID, "\r\n")] = '\0';
+
+        // Cancel option
+        if (strcmp(new_OrderID, "!q") == 0) {
+            enter_to_back();
+            return;
+        }
+
+        // Keep current value if empty
+        if (new_OrderID[0] == '\0' || strspn(new_OrderID, " ") == strlen(new_OrderID)) {
+            strcpy(new_OrderID, products[found_index].OrderID);
+            break;
+        }
+
+        // Check for duplicate OrderID (but allow same OrderID if it's the current one)
+        int is_duplicate = 0;
+        for (int i = 0; i < product_count; i++) {
+            if (i != found_index && strcmp(products[i].OrderID, new_OrderID) == 0) {
+                printf(YELLOW"OrderID '%s' already exists! Please try again.\n"RESET, new_OrderID);
+                is_duplicate = 1;
+                break;
+            }
+        }
+        if (is_duplicate) continue;
+        break; // Valid OrderID
+    }
+
+    // Update ProductName
+    printf("\nCurrent ProductName: "YELLOW"%s"RESET"\n", products[found_index].ProductName);
+    printf("Enter new ProductName: "YELLOW"");
+    fgets(new_ProductName, sizeof(new_ProductName), stdin);
+    new_ProductName[strcspn(new_ProductName, "\r\n")] = '\0';
+    
+    // Keep current value if empty
+    if (new_ProductName[0] == '\0' || strspn(new_ProductName, " ") == strlen(new_ProductName)) {
+        strcpy(new_ProductName, products[found_index].ProductName);
+    }
+
+    // Update Quantity
+    printf(RESET"\nCurrent Quantity: "YELLOW"%d"RESET"\n", products[found_index].Quantitiy);
+    printf("Enter new Quantity: "YELLOW"");
+    char qty_str[16];
+    fgets(qty_str, sizeof(qty_str), stdin);
+    qty_str[strcspn(qty_str, "\r\n")] = '\0';
+    
+    // Keep current value if empty or invalid
+    if (qty_str[0] == '\0' || atoi(qty_str) <= 0) {
+        new_Quantity = products[found_index].Quantitiy;
+    } else {
+        new_Quantity = atoi(qty_str);
+    }
+
+    // Update TotalPrice
+    printf(RESET"\nCurrent TotalPrice: "YELLOW"%d"RESET"\n", products[found_index].TotalPrice);
+    printf("Enter new TotalPrice: "YELLOW"");
+    char price_str[16];
+    fgets(price_str, sizeof(price_str), stdin);
+    price_str[strcspn(price_str, "\r\n")] = '\0';
+    
+    // Keep current value if empty or invalid
+    if (price_str[0] == '\0' || atoi(price_str) <= 0) {
+        new_TotalPrice = products[found_index].TotalPrice;
+    } else {
+        new_TotalPrice = atoi(price_str);
+    }
+
+    // Show updated data preview
+    cls();
+    printf("----------------------------------------------------------\n");
+    printf(BLUE"\t           UPDATE PREVIEW\n"RESET);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"Old Data:\n"RESET);
+    printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+    printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+            products[found_index].OrderID, products[found_index].ProductName, 
+            products[found_index].Quantitiy, products[found_index].TotalPrice);
+    
+    printf("\n"GREEN"New Data:\n"RESET);
+    printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+    printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+            new_OrderID, new_ProductName, new_Quantity, new_TotalPrice);
+    printf("----------------------------------------------------------\n");
+
+    // Confirm update
+    char confirm[10];
+    printf(YELLOW"Do you want to update this data? (y/N): "YELLOW"");
+    fgets(confirm, sizeof(confirm), stdin);
+    confirm[strcspn(confirm, "\r\n")] = '\0';
+
+    if (strcmp(confirm, "y") == 0 || strcmp(confirm, "Y") == 0) {
+        // Update the data
+        strcpy(products[found_index].OrderID, new_OrderID);
+        strcpy(products[found_index].ProductName, new_ProductName);
+        products[found_index].Quantitiy = new_Quantity;
+        products[found_index].TotalPrice = new_TotalPrice;
+
+        // Ask to save
+        char save_input[16];
+        cls();
+        printf(CYAN"\n\n");
+        printf(BLUE"|- Update Data Confirmation -| \n\n"RESET);
+        printf(CYAN"\n\n"RESET);
+        printf(GREEN"Data updated successfully in memory.\n\n"RESET);
+        printf(YELLOW"Do you want to save changes to CSV file?\n"RESET);
+        printf(GREEN"1. Save to CSV file and go back\n"RESET);
+        printf(RED"2. Don't save to CSV (changes will be lost) and go back\n"RESET);
+        printf(" --> Enter your choice (1-2): "YELLOW"");
+
+        while (1) {
+            fgets(save_input, sizeof(save_input), stdin);
+            int save_choice = atoi(save_input);
+
+            if (save_choice == 1) {
+                printf(RESET);
+                int save_result = save_file();
+                cls();
+                printf(CYAN"\n\n");
+                printf(BLUE"|- Update Data Confirmation -| \n\n"RESET);
+                printf(CYAN"\n\n"RESET);
+                if (save_result == 0) {
+                    printf(GREEN"Changes saved to CSV file successfully.\n"RESET);
+                    printf(GREEN"Data updated permanently.\n"RESET);
+                } else {
+                    printf(RED"Error saving to CSV file!\n"RESET);
+                }
+                enter_to_back();
+                return;
+            } 
+            else if (save_choice == 2) {
+                printf(RESET);
+                // Restore original data
+                free(products);
+                products = NULL;
+                product_count = 0;
+                product_capacity = 0;
+                read_data();
+                cls();
+                printf(CYAN"\n\n");
+                printf(BLUE"|- Update Data Confirmation -| \n\n"RESET);
+                printf(CYAN"\n\n"RESET);
+                printf(YELLOW"Changes NOT saved to CSV file.\n"RESET);
+                printf(YELLOW"Data restored from file. Nothing was permanently updated.\n"RESET);
+                enter_to_back();
+                return;
+            }
+            else {
+                printf(RED"Invalid choice. Please enter 1 or 2: "YELLOW"");
+            }
+        }
+    } else {
+        printf(RESET);
+        printf(GREEN"Update cancelled. No data was modified.\n"RESET);
+        enter_to_back();
+        return;
+    }
+}
+
+// Summary the data in csv
+void list_with_total(){
+    cls();
+    FILE *file = fopen(filename, "r");
+    if (file == NULL){
+        printf("--------------------------------------\n\n");
+        printf(RED"\t%s\n\n", check_file());
+        printf(RESET"--------------------------------------\n");
+        enter_to_back();
+        return;
+    }
+    
+    printf("----------------------------------------------------------\n");
+    printf(GREEN"\t      LIST CSV WITH TOTAL SUMMARY\n"RESET);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+    printf("----------------------------------------------------------\n");
+    
+    int grand_total = 0;
+    int total_quantity = 0;
+    
+    for (int i = 0; i < product_count; i++){
+        printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+        grand_total += products[i].TotalPrice;
+        total_quantity += products[i].Quantitiy;
+    }
+    
+    printf("----------------------------------------------------------\n");
+    printf(GREEN"SUMMARY:\n"RESET);
+    printf("----------------------------------------------------------\n");
+    printf(YELLOW"Total Records:    %-10d\n"RESET, product_count);
+    printf(BLUE"Total Quantity:   %-10d\n"RESET, total_quantity);
+    printf(CYAN"Grand Total Price: %-10d\n"RESET, grand_total);
+    printf("----------------------------------------------------------\n");
+    
+    if (product_count > 0) {
+        int average_price = grand_total / product_count;
+        printf(MAGENTA"Average Price per Order: %-10d\n"RESET, average_price);
+        printf("----------------------------------------------------------\n");
+    }
+    
+    enter_to_back();
+}
+
 
 
 // UI Program Function

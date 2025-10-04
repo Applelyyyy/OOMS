@@ -69,7 +69,7 @@ cd output
 
 ## Version
 
-Current Version: V0.9.7-beta-09/25/2025
+Current Version: V1.0.0-10/04/2025
 
 ### Changelog
 
@@ -82,4 +82,5 @@ Current Version: V0.9.7-beta-09/25/2025
 - **V0.9.0-beta-09/18/2025:** GitHub sync functionality; update CSV handling and compilation script
 - **V0.9.1-beta-09/20/2025:** update menu display-V6
 - **V0.9.3-beta-09/24/2025:** update menu display-V7 and Refactor main program structure and add file listing functionality fix bug and better ui in change csv file
-- **V0.9.7-beta-09/25/2025:** new add data function and save 
+- **V0.9.7-beta-09/25/2025:** new add data function and save
+- **V1.0.0-10/04/2025:** Compleat all the function and remove data,update data ,summary data and Version 1.0.0!!
