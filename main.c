@@ -1,6 +1,3 @@
-
-
-
 //-----------------
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +6,26 @@
 #include "github_sync.h" //sync file CSV
 #include <ctype.h>
 //-----------------
+
+//lang windows
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <locale.h>
+#endif
+
+
+// Add these definitions after the ANSI color definitions
+#define CHECKMARK   "\xFB"     // √ symbol for Windows CP437
+#define CROSS       "\xFE"     // × symbol for Windows CP437
+#define BULLET      "\x07"     // • symbol for Windows CP437
+
+// Alternative ASCII-safe versions
+#define CHECK_ASCII  "[OK]"
+#define CROSS_ASCII  "[X]"
+#define ARROW_ASCII  " -> "
+
+
 // SETUP FUNCTION prototypes
 
 void cls();
@@ -36,6 +53,8 @@ void to_lowercase(char *str);
 void delete_data();
 void remove_file();
 void update_data();
+void run_all_tests();
+void setup_console();
 
 //-----------------
 // filename defult CSV
@@ -73,6 +92,7 @@ struct data_csv_st *products = NULL;
 
 // main v6
 int main() {
+    setup_console();
     char input[256];
     int choice;
     CreateifNoFile();
@@ -103,8 +123,12 @@ int main() {
             ListFileFolder();
             enter_to_back();
             break;
+        case 5:
+            cls();
+            run_all_tests();
+            break;
         case 9:
-            exit(0);
+            p_quit();
         default:
             invalid();
         }
@@ -311,6 +335,9 @@ int read_data(){
         }
 
         line[strcspn(line,"\n\r")] = '\0';
+        if (strlen(line) == 0 || strspn(line, " \t\r\n") == strlen(line)) {
+        continue;  // Skip this line completely
+        }
         char *token = strtok(line,",");
         int index = 0;
         while (token)
@@ -672,7 +699,7 @@ void delete_data() {
     printf("\n\n");
     printf(RED"- Delete Data from CSV -"RESET);
     printf("\n\n");
-    printf(CYAN"------------------------------------------\n"RESET);
+    printf(CYAN"----------------------------------------------------------\n"RESET);
     printf(YELLOW"Current data in CSV file:\n"RESET);
     printf("----------------------------------------------------------\n");
     printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
@@ -701,7 +728,7 @@ void delete_data() {
         found_count = 0; 
 
        
-        printf("Enter "YELLOW"OrderID"RESET" to search for deletion ["RED"!q"RESET" to cancel]: "YELLOW"");
+        printf("Enter "YELLOW"OrderID"RESET" to search for deletion ["RED"!q"RESET" to cancel],or type "GREEN"'!list'"RESET" to list data: "YELLOW"");
         fgets(search_term, sizeof(search_term), stdin);
         search_term[strcspn(search_term, "\r\n")] = '\0';
 
@@ -709,6 +736,20 @@ void delete_data() {
         if (strcmp(search_term, "!q") == 0) {
             enter_to_back();
             return;
+        }
+        if (strcmp(search_term, "!list") == 0){
+            cls();
+            printf(RESET"----------------------------------------------------------\n");
+            printf(RED"\t           LIST SEARCH RESULTS\n"RESET);
+            printf("----------------------------------------------------------\n");
+            printf(YELLOW"%-10s %-20s %-10s %-10s\n"RESET, "OrderID", "ProductName", "Quantity", "TotalPrice");
+            for (int i = 0; i < product_count; i++) {
+                printf(""RESET"%-10s "MAGENTA"%-20s "BLUE"%-10d "CYAN"%-10d\n"RESET"",
+                    products[i].OrderID, products[i].ProductName, products[i].Quantitiy, products[i].TotalPrice);
+                }
+            printf("----------------------------------------------------------\n");
+            enter_to_back();
+            delete_data();
         }
 
         
@@ -744,9 +785,10 @@ void delete_data() {
         }
 
         if (found_count == 0) {
-            printf(RED"No matching OrderID found for: %s\n"RESET, search_term);
+            printf("----------------------------------------------------------\n\n");
+            printf(RED"No matching OrderID found for: %s\n\n"RESET, search_term);
             printf("----------------------------------------------------------\n");
-            printf(YELLOW"Please try again or type '!q' to quit.\n"RESET);
+            printf(YELLOW"Please try again or type '!q' to quit, or type '!list' to list data.\n"RESET);
         } 
         else {
             printf("----------------------------------------------------------\n");
@@ -1319,12 +1361,13 @@ void menu(){
     printf(YELLOW"2."RESET" Change file CSV\n");
     printf(YELLOW"3."RESET" Update Data / Search Data\n");
     printf(YELLOW"4."RESET" List File in Folder\n");
+    printf(YELLOW"5."RESET" Run Unit Tests\n");
     printf(RED"9."RESET" !! Exit The Program !!\n");
     printf(CYAN"------------------------------------------\n\n"RESET);
     printf("\t     [Current Read CSV]\n\n");
     printf("%s\n", check_file());
     printf(CYAN"==========================================\n"RESET);
-    printf(" --> Enter your choice (1-4,9): ");
+    printf(" --> Enter your choice (1-5,9): ");
 }
 
 // invalid input function enter to back
@@ -1356,10 +1399,6 @@ void p_quit(){
         printf(RESET);
         choice = atoi(input);
         if(choice == 1){
-            printf(RESET);
-            cls();
-            printf(RED"Press Enter to EXIT...");
-            getchar();
             exit(0);
         }
         else if(choice == 2){
@@ -1378,7 +1417,7 @@ void p_quit(){
 
 //function enter to back
 void enter_to_back(){
-    printf("\nPress "RED"Enter"RESET" to go back to the menu...");
+    printf("\nPress "RED"Enter"RESET" to go back...");
     getchar();
 }
 
@@ -1410,4 +1449,20 @@ void loop2(){
 // clear terminal
 void cls(){
     system("cls||clear");
+}
+
+
+void setup_console() {
+#ifdef _WIN32
+    // Enable UTF-8 output for Windows
+    SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);
+
+    // Alternative method for older Windows versions
+    system("chcp 65001 > nul");
+#else
+    // Enable UTF-8 for Linux/Unix systems
+    setlocale(LC_ALL, "");
+    setlocale(LC_CTYPE, "C.UTF-8");
+#endif
 }

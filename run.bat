@@ -7,7 +7,7 @@ if not exist log (
     mkdir log
 )
 :: Compile...
-gcc main.c github_sync.c -o output/main.exe 2> log/Compile_error.txt
+gcc main.c github_sync.c unit_test.c -o output/main.exe 2> log/Compile_error.txt
 
 :: Check if compilation succeeded
 if %errorlevel% neq 0 (
@@ -16,5 +16,6 @@ if %errorlevel% neq 0 (
     pause
     exit /b
 )
+echo "Compilation successful. Running program..."
 start cmd /c "cd output && main.exe"
 exit

@@ -55,7 +55,7 @@ if [ ! -d "log" ]; then
 fi
 
 # Compile the program
-gcc main.c github_sync.c -o output/main 2> log/Compile_error.txt
+gcc main.c github_sync.c unit_test.c -o output/main 2> log/Compile_error.txt
 
 # Check if compilation succeeded
 if [ $? -ne 0 ]; then
@@ -65,5 +65,5 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "✅ Compilation successful. Running program..."
+echo "Compilation successful. Running program..."
 cd output && ./main
