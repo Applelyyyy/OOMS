@@ -6,9 +6,13 @@
 #include "github_sync.h"
 
 #ifdef _WIN32
+#include <direct.h>
+#define MKDIR(path) _mkdir(path)
 #define DOWNLOAD_CMD(url, output) \
     "powershell -Command \"Invoke-WebRequest -Uri '" url "' -OutFile '" output "'\""
 #else
+#include <sys/types.h>
+#define MKDIR(path) mkdir(path, 0777)
 #define DOWNLOAD_CMD(url, output) \
     "wget -q -O \"" output "\" \"" url "\""
 #endif
@@ -59,11 +63,7 @@ int download_file(const char *url, const char *output) {
 }
 
 int sync_github_file() {
-#ifdef _WIN32
-    mkdir("data");
-#else
-    mkdir("data", 0777);
-#endif
+    MKDIR("data");
 
     if (download_file(REMOTE_URL, TEMP_PATH) != 0) {
         printf("❌ Download failed.\n");
