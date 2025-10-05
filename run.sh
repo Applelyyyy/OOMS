@@ -3,7 +3,7 @@
 
 echo "Compiling program..."
 
-# Check if wget is installed
+
 if ! command -v wget &> /dev/null; then
     echo "⚠️  wget is not installed. This is required for GitHub sync functionality."
     echo ""
@@ -15,7 +15,7 @@ if ! command -v wget &> /dev/null; then
     else
         echo "🔧 Installing wget..."
         
-        # Detect package manager and install wget
+
         if command -v apt-get &> /dev/null; then
             sudo apt-get update && sudo apt-get install -y wget
         elif command -v yum &> /dev/null; then
@@ -36,7 +36,7 @@ if ! command -v wget &> /dev/null; then
             read -p "Press any key to continue..."
         fi
         
-        # Verify installation
+
         if command -v wget &> /dev/null; then
             echo "✅ wget installed successfully!"
         else
@@ -45,7 +45,7 @@ if ! command -v wget &> /dev/null; then
     fi
 fi
 
-# Create directories if they don't exist
+
 if [ ! -d "output" ]; then
     mkdir output
 fi
@@ -54,10 +54,10 @@ if [ ! -d "log" ]; then
     mkdir log
 fi
 
-# Compile the program
+
 gcc main.c github_sync.c unit_test.c -o output/main 2> log/Compile_error.txt
 
-# Check if compilation succeeded
+
 if [ $? -ne 0 ]; then
     echo "❌ Compilation failed. error in log Folder:"
     cat log/Compile_error.txt
