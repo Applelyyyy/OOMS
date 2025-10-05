@@ -1,2 +1,3 @@
 */output/main.exe
 *.vscode
+/log/Compile_error.txt
