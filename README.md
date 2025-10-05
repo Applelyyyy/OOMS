@@ -44,6 +44,7 @@ run.bat
 ```
 
 The script will automatically:
+
 - Check if `gcc` is installed
 - Install MinGW-w64 if needed (requires user confirmation)
 - Check for PowerShell (for GitHub sync functionality)
@@ -55,6 +56,7 @@ The script will automatically:
 If auto installation fails, install dependencies manually:
 
 1. **Install MinGW-w64** (for GCC compiler):
+
    - Download from: https://www.mingw-w64.org/downloads/
    - Or use package managers:
      ```cmd
@@ -68,6 +70,7 @@ If auto installation fails, install dependencies manually:
 2. **Ensure PowerShell is available** (usually pre-installed on Windows 10/11)
 
 3. **Compile manually**:
+
    ```cmd
    gcc main.c github_sync.c -o output/main.exe
    cd output
@@ -79,12 +82,14 @@ If auto installation fails, install dependencies manually:
 **Method 1: Auto Compile with Dependency Check (Recommended)**
 
 Make the script executable and run:
+
 ```bash
 chmod +x run.sh
 ./run.sh
 ```
 
 The script will automatically:
+
 - Check if `gcc` is installed and prompt to install if missing
 - Check if `wget` is installed and offer automatic installation
 - Detect your Linux distribution and use appropriate package manager
@@ -97,6 +102,7 @@ The script will automatically:
 If auto installation fails, install dependencies manually:
 
 1. **Install GCC**:
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get update && sudo apt-get install build-essential
@@ -115,6 +121,7 @@ If auto installation fails, install dependencies manually:
    ```
 
 2. **Install wget** (for GitHub sync):
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get install wget
@@ -133,6 +140,7 @@ If auto installation fails, install dependencies manually:
    ```
 
 3. **Compile manually**:
+
    ```bash
    gcc main.c github_sync.c -o output/main
    cd output
@@ -144,11 +152,13 @@ If auto installation fails, install dependencies manually:
 ## 📋 Prerequisites
 
 ### Windows
+
 - **GCC Compiler**: MinGW-w64 (auto-installed by `run.bat`)
 - **PowerShell**: For GitHub sync functionality (usually pre-installed)
 - **Administrator Rights**: May be required for automatic installation
 
 ### Linux
+
 - **GCC Compiler**: build-essential or Development Tools (auto-installed by `run.sh`)
 - **wget**: For GitHub sync functionality (auto-installed by `run.sh`)
 - **sudo privileges**: Required for automatic package installation
@@ -167,11 +177,13 @@ If auto installation fails, install dependencies manually:
 ## 🔧 Troubleshooting
 
 ### Windows Issues
+
 - **"gcc not found"**: Run `run.bat` as Administrator for auto-installation
 - **PowerShell execution policy**: Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 - **Manual GCC install**: Download from mingw-w64.org
 
 ### Linux Issues
+
 - **Permission denied**: Run `chmod +x run.sh` first
 - **Package installation fails**: Ensure you have sudo privileges
 - **Unsupported distribution**: Install gcc and wget manually using your package manager
@@ -194,4 +206,4 @@ Current Version: V1.0.0-10/04/2025
 - **V0.9.1-beta-09/20/2025:** update menu display-V6
 - **V0.9.3-beta-09/24/2025:** update menu display-V7 and Refactor main program structure and add file listing functionality fix bug and better ui in change csv file
 - **V0.9.7-beta-09/25/2025:** new add data function and save
-- **V1.0.0-10/04/2025:** Complete all the function and remove data, update data, summary data and Version 1.0.0!!
+- **V1.0.0-10/04/2025:** Complete all the function and remove data, update data, summary data and Version 1.0.0!
