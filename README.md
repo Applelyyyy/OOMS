@@ -18,10 +18,14 @@ OOMS/
 ├── main.c                      # Source
 ├── github_sync.h               # gitsync header 
 ├── github_sync.c               # gitsync source file
+├── unit_test.c                 # Unit testing file
+├── E2E.c                       # End-to-End testing file
 ├── README.md                   # Project documentation
 ├── run.bat                     # compile and run Program (Windows)
 └── run.sh                      # compile and run Program (Linux)
 ```
+
+---
 
 ## 🚀 Getting Started
 
@@ -72,7 +76,7 @@ If auto installation fails, install dependencies manually:
 3. **Compile manually**:
 
    ```cmd
-   gcc main.c github_sync.c -o output/main.exe
+   gcc main.c github_sync.c unit_test.c E2E.c -o output/main.exe
    cd output
    main.exe
    ```
@@ -142,7 +146,7 @@ If auto installation fails, install dependencies manually:
 3. **Compile manually**:
 
    ```bash
-   gcc main.c github_sync.c -o output/main
+   gcc main.c github_sync.c unit_test.c E2E.c -o output/main
    cd output
    ./main
    ```
@@ -190,20 +194,44 @@ If auto installation fails, install dependencies manually:
 
 ---
 
+## 📦 Testing
+
+### Unit Tests
+Run comprehensive unit tests to validate core functionalities:
+```bash
+# The unit tests are integrated into the main program
+# They will test functions like read_data, save_file, and to_lowercase
+```
+
+### End-to-End Tests
+Run E2E tests to validate complete workflows:
+```bash
+# E2E tests validate workflows like adding, deleting, and updating records
+# Include stress tests for multiple operations
+```
+
+---
+
 ## Version
 
-Current Version: V1.0.0-10/04/2025
+Current Version: V1.0.1-10/05/2025
 
 ### Changelog
 
-- **V0.1.0-beta-09/04/2025:** Menu and function
-- **V0.5.0-beta-09/06/2025:** Add CSV reading functionality and list CSV
-- **V0.5.5-beta-09/06/2025:** improve CSV handling and menu display-V2
-- **V0.6.0-beta-09/16/2025:** Add change path CSV and logic; update menu display-V3
-- **V0.6.5-beta-09/16/2025:** update menu display-V4
-- **V0.8.0-beta-09/18/2025:** Startup Create File and UI Change Path and User-makefriendly
-- **V0.9.0-beta-09/18/2025:** GitHub sync functionality; update CSV handling and compilation script
-- **V0.9.1-beta-09/20/2025:** update menu display-V6
-- **V0.9.3-beta-09/24/2025:** update menu display-V7 and Refactor main program structure and add file listing functionality fix bug and better ui in change csv file
-- **V0.9.7-beta-09/25/2025:** new add data function and save
+- **V1.0.1-10/05/2025:** 
+  - Added `unit_test.c` for comprehensive unit testing
+  - Added `E2E.c` for end-to-end testing workflows
+  - Improved GitHub sync functionality in `github_sync.c`
+  - Enhanced error handling and UI prompts
+  - Updated `run.bat` and `run.sh` for better dependency management
 - **V1.0.0-10/04/2025:** Complete all the function and remove data, update data, summary data and Version 1.0.0!
+- **V0.9.7-beta-09/25/2025:** new add data function and save
+- **V0.9.3-beta-09/24/2025:** update menu display-V7 and Refactor main program structure and add file listing functionality fix bug and better ui in change csv file
+- **V0.9.1-beta-09/20/2025:** update menu display-V6
+- **V0.9.0-beta-09/18/2025:** GitHub sync functionality; update CSV handling and compilation script
+- **V0.8.0-beta-09/18/2025:** Startup Create File and UI Change Path and User-makefriendly
+- **V0.6.5-beta-09/16/2025:** update menu display-V4
+- **V0.6.0-beta-09/16/2025:** Add change path CSV and logic; update menu display-V3
+- **V0.5.5-beta-09/06/2025:** improve CSV handling and menu display-V2
+- **V0.5.0-beta-09/06/2025:** Add CSV reading functionality and list CSV
+- **V0.1.0-beta-09/04/2025:** Menu and function

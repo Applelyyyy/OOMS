@@ -55,7 +55,7 @@ void remove_file();
 void update_data();
 void run_all_tests();
 void setup_console();
-
+void run_e2e_tests();
 //-----------------
 // filename defult CSV
 char *filename = "../data/raw_data.csv";
@@ -83,6 +83,7 @@ struct data_csv_st *products = NULL;
 #define MAGENTA "\x1b[35m"
 #define CYAN    "\x1b[36m"
 #define RESET   "\x1b[0m"
+#define BOLD    "\x1b[1m"
 
 
 
@@ -126,6 +127,10 @@ int main() {
         case 5:
             cls();
             run_all_tests();
+            break;
+        case 6:
+            cls();
+            run_e2e_tests();
             break;
         case 9:
             p_quit();
@@ -749,7 +754,8 @@ void delete_data() {
                 }
             printf("----------------------------------------------------------\n");
             enter_to_back();
-            delete_data();
+            cls();
+            continue;
         }
 
         
@@ -811,16 +817,11 @@ void delete_data() {
                     product_count--;
                 }
                 
-                if (product_count > 0) {
-                    products = realloc(products, product_count * sizeof(struct data_csv_st));
-                    if (products == NULL && product_count > 0) {
-                        printf(RED"Memory reallocation failed!\n"RESET);
-                        enter_to_back();
-                        return;
+                if (product_count == 0) {
+                    if (products != NULL) {
+                        free(products);
+                        products = NULL;
                     }
-                } else {
-                    free(products);
-                    products = NULL;
                     product_capacity = 0;
                 }
                 
@@ -857,8 +858,10 @@ void delete_data() {
                     } 
                     else if (save_choice == 2) {
                         printf(RESET);
-                        free(products);
-                        products = NULL;
+                        if (products != NULL) {
+                            free(products);
+                            products = NULL;
+                        }
                         product_count = 0;
                         product_capacity = 0;
                         read_data();
@@ -1362,21 +1365,20 @@ void menu(){
     printf(YELLOW"3."RESET" Update Data / Search Data\n");
     printf(YELLOW"4."RESET" List File in Folder\n");
     printf(YELLOW"5."RESET" Run Unit Tests\n");
+    printf(YELLOW"6."RESET" Run E2E Tests\n");
     printf(RED"9."RESET" !! Exit The Program !!\n");
     printf(CYAN"------------------------------------------\n\n"RESET);
     printf("\t     [Current Read CSV]\n\n");
     printf("%s\n", check_file());
     printf(CYAN"==========================================\n"RESET);
-    printf(" --> Enter your choice (1-5,9): ");
+    printf(" --> Enter your choice (1-6,9): ");
 }
 
 // invalid input function enter to back
 void invalid(){
     cls();
     printf("\n");
-    printf("******************************************\n");
-    printf(RED"!!! Invalid choice. Please try again. !!!\n");
-    printf(RESET"******************************************\n\n");
+    printf(RED"!!! Invalid choice. Please try again. !!!\\n");
     printf("Press "RED"Enter"RESET" to go back...\n");
     getchar();
 }
@@ -1386,9 +1388,8 @@ void p_quit(){
     char input[1024];
     int choice;
     cls();
-    printf(RED"==========================================\n"RESET);
-    printf(YELLOW"\t      Exit The Program \n"RESET);
-    printf(RED"==========================================\n"RESET);
+    printf("\n");
+    printf(YELLOW"\t      Exit The Program \n\n"RESET);
     printf(RESET"\n-------------------------------------------\n\n");
     printf("You want to"YELLOW" continue ?\n"RESET"");
     printf(GREEN"1. Continue\n"RESET);
@@ -1452,6 +1453,7 @@ void cls(){
 }
 
 
+//startup
 void setup_console() {
 #ifdef _WIN32
     // Enable UTF-8 output for Windows
