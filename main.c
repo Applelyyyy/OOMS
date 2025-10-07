@@ -255,13 +255,14 @@ char *csv_name() {
     } else {
         base_name++;
     }
-    strncpy(r_name, base_name, sizeof(r_name));
+    strncpy(r_name, base_name, sizeof(r_name) - 1);
+    r_name[sizeof(r_name) - 1] = '\0';  // Ensure null termination
     char *dot = strrchr(r_name, '.'); 
     if (dot) {
         *dot = '\0';
     }
-    printf("Current Read CSV --> "YELLOW"%s\n\n"RESET"",r_name);
-    return 0;
+    printf("Current Read CSV --> "YELLOW"%s\n\n"RESET"", r_name);
+    return r_name;  // Return the actual string instead of 0
 }
 
 //check file path if file Deleat or change name
@@ -274,8 +275,8 @@ char *check_file(){
     }
     else{
         fclose(file);  // Don't forget to close the file
-        csv_name();
-        snprintf(result, sizeof(result), "File loaded successfully");
+        char *csv_file_name = csv_name();  // Get the CSV name
+        snprintf(result, sizeof(result), "File loaded successfully: %s", csv_file_name);
         return result;
     }
 }
@@ -1392,7 +1393,7 @@ void menu(){
 void invalid(){
     cls();
     printf("\n");
-    printf(RED"!!! Invalid choice. Please try again. !!!\\n");
+    printf(RED"!!! Invalid choice. Please try again. !!!\n");
     printf("Press "RED"Enter"RESET" to go back...\n");
     getchar();
 }
