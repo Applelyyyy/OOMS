@@ -22,7 +22,6 @@ OOMS/
 ├── E2E.c                       # End-to-End testing file
 ├── README.md                   # Project documentation
 ├── run.bat                     # compile and run Program (Windows)
-└── run.sh                      # compile and run Program (Linux)
 ```
 
 ---
@@ -81,76 +80,6 @@ If auto installation fails, install dependencies manually:
    main.exe
    ```
 
-#### 🐧 Linux (Automatic Installation)
-
-**Method 1: Auto Compile with Dependency Check (Recommended)**
-
-Make the script executable and run:
-
-```bash
-chmod +x run.sh
-./run.sh
-```
-
-The script will automatically:
-
-- Check if `gcc` is installed and prompt to install if missing
-- Check if `wget` is installed and offer automatic installation
-- Detect your Linux distribution and use appropriate package manager
-- Support for: Ubuntu/Debian, Red Hat/CentOS, Fedora, Arch, openSUSE
-- Create necessary directories
-- Compile and run the program
-
-**Method 2: Manual Installation**
-
-If auto installation fails, install dependencies manually:
-
-1. **Install GCC**:
-
-   ```bash
-   # Ubuntu/Debian
-   sudo apt-get update && sudo apt-get install build-essential
-   
-   # Red Hat/CentOS
-   sudo yum groupinstall "Development Tools"
-   
-   # Fedora
-   sudo dnf groupinstall "Development Tools"
-   
-   # Arch
-   sudo pacman -S base-devel
-   
-   # openSUSE
-   sudo zypper install -t pattern devel_basis
-   ```
-
-2. **Install wget** (for GitHub sync):
-
-   ```bash
-   # Ubuntu/Debian
-   sudo apt-get install wget
-   
-   # Red Hat/CentOS
-   sudo yum install wget
-   
-   # Fedora
-   sudo dnf install wget
-   
-   # Arch
-   sudo pacman -S wget
-   
-   # openSUSE
-   sudo zypper install wget
-   ```
-
-3. **Compile manually**:
-
-   ```bash
-   gcc main.c github_sync.c unit_test.c E2E.c -o output/main
-   cd output
-   ./main
-   ```
-
 ---
 
 ## 📋 Prerequisites
@@ -161,12 +90,6 @@ If auto installation fails, install dependencies manually:
 - **PowerShell**: For GitHub sync functionality (usually pre-installed)
 - **Administrator Rights**: May be required for automatic installation
 
-### Linux
-
-- **GCC Compiler**: build-essential or Development Tools (auto-installed by `run.sh`)
-- **wget**: For GitHub sync functionality (auto-installed by `run.sh`)
-- **sudo privileges**: Required for automatic package installation
-
 ---
 
 ## 💻 Platform Support
@@ -174,7 +97,6 @@ If auto installation fails, install dependencies manually:
 | Platform | Script | Executable | Auto Install |
 |----------|--------|------------|--------------|
 | Windows  | `run.bat` | `main.exe` | ✅ MinGW-w64 |
-| Linux    | `run.sh` | `main` | ✅ GCC + wget |
 
 ---
 

@@ -58,6 +58,9 @@ void update_data();
 void run_all_tests();
 void setup_console();
 void run_e2e_tests();
+void cleanup_memory();
+void free_products();
+void free_filename();
 //-----------------
 // filename defult CSV
 char *filename = "../data/raw_data.csv";
@@ -136,8 +139,10 @@ int main() {
             break;
         case 9:
             p_quit();
+            break;
         default:
             invalid();
+            break;
         }
     }
     while(1);
@@ -501,6 +506,7 @@ int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quant
             }
         break;
     }
+    return 0;
 }
 
 
@@ -627,6 +633,7 @@ int WDUChoice(char *input) {
             main();
         default:
             invalid();
+            break;
     }
     return 0;
 }
@@ -1319,7 +1326,29 @@ void list_with_total(){
     enter_to_back();
 }
 
+// Freeallmem
+void free_filename() {
+    if (filename != NULL && strcmp(filename, "../data/raw_data.csv") != 0) {
+        free(filename);
+        filename = NULL;
+    }
+}
 
+// Function to safely free products array
+void free_products() {
+    if (products != NULL) {
+        free(products);
+        products = NULL;
+    }
+    product_count = 0;
+    product_capacity = 0;
+}
+
+// Function to cleanup all allocated memory
+void cleanup_memory() {
+    free_products();
+    free_filename();
+}
 
 // UI Program Function
 
@@ -1415,10 +1444,11 @@ void p_quit(){
         printf(RESET);
         choice = atoi(input);
         if(choice == 1){
+            cleanup_memory();
             exit(0);
         }
         else if(choice == 2){
-            main();
+            return;
         }
         else{
             invalid();
@@ -1482,3 +1512,4 @@ void setup_console() {
     setlocale(LC_ALL, "C.UTF-8");
 #endif
 }
+
