@@ -57,11 +57,12 @@ void remove_file();
 void update_data();
 void run_all_tests();
 void setup_console();
-void run_e2e_tests();
+void run_e2e_tests_main();
 void cleanup_memory();
 void free_products();
 void free_filename();
 int contains_comma(const char *str);
+int SaveDataToFile_NonInteractive(const char *OrderID, const char *ProductName, const int Quantitiy, const int TotalPrice);
 //-----------------
 // filename defult CSV
 char *filename = "../data/raw_data.csv";
@@ -136,7 +137,7 @@ int main() {
             break;
         case 6:
             cls();
-            run_e2e_tests();
+            run_e2e_tests_main();
             break;
         case 9:
             p_quit();
@@ -510,6 +511,38 @@ int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quant
     return 0;
 }
 
+//Save data to File Function (Non-interactive version for testing)
+int SaveDataToFile_NonInteractive(const char *OrderID, const char *ProductName, const int Quantitiy, const int TotalPrice){
+    // Check for duplicate OrderID
+    for(int i = 0; i < product_count; i++){
+        if(strcmp(products[i].OrderID, OrderID) == 0){
+            return 1; // Duplicate found
+        }
+    }
+    
+    // Expand capacity if needed
+    if (product_capacity == product_count){
+        if (product_capacity == 0){
+            product_capacity = 10;
+        }
+        else{
+            product_capacity = product_capacity * 2;
+        }
+        products = realloc(products, product_capacity * sizeof(struct data_csv_st));
+        if(!products){
+            return -1; // Memory allocation failed
+        }
+    }
+    
+    // Add the data
+    strcpy(products[product_count].OrderID, OrderID);
+    strcpy(products[product_count].ProductName, ProductName);
+    products[product_count].Quantitiy = Quantitiy;
+    products[product_count].TotalPrice = TotalPrice;
+    product_count++;
+    
+    return 0; // Success
+}
 
 //Add data to csv current
 void add_data(){

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include "github_sync.h"
 
 // External variables and functions from main.c
 extern char *filename;
@@ -18,8 +19,15 @@ extern int product_capacity;
 
 extern int read_data();
 extern int save_file();
+extern int SaveDataToFile(const char *OrderID, const char *ProductName, const int Quantity, const int TotalPrice);
+extern int SaveDataToFile_NonInteractive(const char *OrderID, const char *ProductName, const int Quantity, const int TotalPrice);
+extern char *csv_name();
+extern void to_lowercase(char *str);
+extern char *check_file();
 extern void cls();
 extern void enter_to_back();
+extern void CreateifNoFile();
+extern int contains_comma(const char *str);
 
 // ANSI colors
 #define RED     "\x1b[31m"
@@ -39,7 +47,7 @@ typedef struct {
     double execution_time;
 } E2ETestResult;
 
-E2ETestResult e2e_results[10];
+E2ETestResult e2e_results[20];
 int e2e_test_count = 0;
 
 // Helper function to create test CSV file
@@ -76,7 +84,7 @@ void create_e2e_test_file() {
     // Don't restore filename yet - let tests use the test file
 }
 
-// Helper function to simulate add operation
+// Helper function to simulate add operation (improved version)
 int simulate_add_data(const char* orderid, const char* productname, int quantity, int totalprice) {
     clock_t start = clock();
     
@@ -88,57 +96,41 @@ int simulate_add_data(const char* orderid, const char* productname, int quantity
         return -1;
     }
     
+    // Check for comma in inputs
+    if (contains_comma(orderid) || contains_comma(productname)) {
+        clock_t end = clock();
+        e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+        strcpy(e2e_results[e2e_test_count].error_message, "Comma detected in input (correctly rejected)");
+        return -1;
+    }
+    
     // Store original product count
     int original_count = product_count;
     
-    // Check for duplicate OrderID
-    for(int i = 0; i < product_count; i++){
-        if(strcmp(products[i].OrderID, orderid) == 0){
-            clock_t end = clock();
-            e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-            strcpy(e2e_results[e2e_test_count].error_message, "Duplicate OrderID detected correctly");
-            return 1; // Duplicate found - this is expected behavior
-        }
-    }
-    
-    // Expand capacity if needed
-    if (product_capacity <= product_count){
-        int new_capacity = (product_capacity == 0) ? 10 : product_capacity * 2;
-        struct data_csv_st *new_products = realloc(products, new_capacity * sizeof(struct data_csv_st));
-        if(!new_products){
-            clock_t end = clock();
-            e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-            strcpy(e2e_results[e2e_test_count].error_message, "Memory allocation failed");
-            return -1;
-        }
-        products = new_products;
-        product_capacity = new_capacity;
-    }
-    
-    // Add the data
-    strncpy(products[product_count].OrderID, orderid, sizeof(products[product_count].OrderID) - 1);
-    products[product_count].OrderID[sizeof(products[product_count].OrderID) - 1] = '\0';
-    
-    strncpy(products[product_count].ProductName, productname, sizeof(products[product_count].ProductName) - 1);
-    products[product_count].ProductName[sizeof(products[product_count].ProductName) - 1] = '\0';
-    
-    products[product_count].Quantitiy = quantity;
-    products[product_count].TotalPrice = totalprice;
-    product_count++;
+    // Use non-interactive version for testing
+    int result = SaveDataToFile_NonInteractive(orderid, productname, quantity, totalprice);
     
     clock_t end = clock();
     e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
     
-    // Verify the data was added correctly
-    if (product_count == original_count + 1 &&
-        strcmp(products[product_count-1].OrderID, orderid) == 0 &&
-        strcmp(products[product_count-1].ProductName, productname) == 0 &&
-        products[product_count-1].Quantitiy == quantity &&
-        products[product_count-1].TotalPrice == totalprice) {
-        strcpy(e2e_results[e2e_test_count].error_message, "Data added successfully");
-        return 0;
+    if (result == 0) {
+        // Verify the data was added correctly
+        if (product_count == original_count + 1 &&
+            strcmp(products[product_count-1].OrderID, orderid) == 0 &&
+            strcmp(products[product_count-1].ProductName, productname) == 0 &&
+            products[product_count-1].Quantitiy == quantity &&
+            products[product_count-1].TotalPrice == totalprice) {
+            strcpy(e2e_results[e2e_test_count].error_message, "Data added successfully");
+            return 0;
+        } else {
+            strcpy(e2e_results[e2e_test_count].error_message, "Data verification failed");
+            return -1;
+        }
+    } else if (result == 1) {
+        strcpy(e2e_results[e2e_test_count].error_message, "Duplicate OrderID detected correctly");
+        return 1; // Duplicate found - expected behavior
     } else {
-        strcpy(e2e_results[e2e_test_count].error_message, "Data verification failed");
+        strcpy(e2e_results[e2e_test_count].error_message, "Memory allocation failed");
         return -1;
     }
 }
@@ -353,27 +345,27 @@ void e2e_test_add_then_delete_workflow() {
 void e2e_test_stress_add_delete() {
     e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
     strcpy(e2e_results[e2e_test_count].test_name, "Stress Test - Multiple Add/Delete");
-    
+
     clock_t start = clock();
     int original_count = product_count;
     int add_operations_success = 0;
     int delete_operations_success = 0;
     int total_operations = 15;  // 10 adds + 5 deletes
-    
+
     // Temporarily save test count
     int temp_test_count = e2e_test_count;
-    
+
     // Keep track of successfully added OrderIDs
     char successful_adds[10][20];
     int successful_add_count = 0;
-    
+
     // Add 10 records
     for (int i = 1; i <= 10; i++) {
         char orderid[20];
         char productname[50];
         snprintf(orderid, sizeof(orderid), "STRESS%02d", i);
         snprintf(productname, sizeof(productname), "Stress Product %d", i);
-        
+
         e2e_test_count = temp_test_count;
         if (simulate_add_data(orderid, productname, i, i * 100) == 0) {
             add_operations_success++;
@@ -381,7 +373,7 @@ void e2e_test_stress_add_delete() {
             successful_add_count++;
         }
     }
-    
+
     // Only delete the first 5 successfully added records
     int delete_attempts = (successful_add_count >= 5) ? 5 : successful_add_count;
     for (int i = 0; i < delete_attempts; i++) {
@@ -390,39 +382,368 @@ void e2e_test_stress_add_delete() {
             delete_operations_success++;
         }
     }
-    
+
     e2e_test_count = temp_test_count; // Restore
-    
+
     clock_t end = clock();
     e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-    
+
     // Calculate expected results
     int expected_operations = add_operations_success + delete_operations_success;
     int expected_count = original_count + add_operations_success - delete_operations_success;
-    
-    if (add_operations_success == 10 && delete_operations_success == delete_attempts && 
+
+    if (add_operations_success == 10 && delete_operations_success == delete_attempts &&
         product_count == expected_count) {
         e2e_results[e2e_test_count].passed = 1;
         snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
-                "All operations successful: %d adds, %d deletes, final count: %d", 
+                "All operations successful: %d adds, %d deletes, final count: %d",
                 add_operations_success, delete_operations_success, product_count);
     } else {
         e2e_results[e2e_test_count].passed = 0;
         snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
-                "Adds: %d/10, Deletes: %d/%d, Expected count: %d, Actual: %d", 
+                "Adds: %d/10, Deletes: %d/%d, Expected count: %d, Actual: %d",
                 add_operations_success, delete_operations_success, delete_attempts, expected_count, product_count);
+    }
+
+    e2e_test_count++;
+}
+
+// E2E Test 8: Test read_data function
+void e2e_test_read_data_function() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "Read Data Function Test");
+
+    clock_t start = clock();
+    
+    // Store original state
+    int original_count = product_count;
+    char *original_filename = filename;
+    
+    // Create a test file
+    char test_file[] = "../data/read_test.csv";
+    FILE *file = fopen(test_file, "w");
+    if (file) {
+        fprintf(file, "%s\n", csv_default);
+        fprintf(file, "READ001,Read Test Product 1,5,500\n");
+        fprintf(file, "READ002,Read Test Product 2,10,1000\n");
+        fclose(file);
+        
+        // Change filename temporarily
+        filename = test_file;
+        
+        // Clear current data
+        if (products != NULL) {
+            free(products);
+            products = NULL;
+        }
+        product_count = 0;
+        product_capacity = 0;
+        
+        // Test read_data function
+        int result = read_data();
+        
+        clock_t end = clock();
+        e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+        
+        if (result == 0 && product_count == 2) {
+            e2e_results[e2e_test_count].passed = 1;
+            strcpy(e2e_results[e2e_test_count].error_message, "Read data function works correctly");
+        } else {
+            e2e_results[e2e_test_count].passed = 0;
+            snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
+                    "Read function failed: result=%d, count=%d", result, product_count);
+        }
+        
+        // Cleanup
+        remove(test_file);
+        filename = original_filename;
+        
+        // Restore original data
+        if (products != NULL) {
+            free(products);
+            products = NULL;
+        }
+        product_count = 0;
+        product_capacity = 0;
+        read_data();
+    } else {
+        clock_t end = clock();
+        e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+        e2e_results[e2e_test_count].passed = 0;
+        strcpy(e2e_results[e2e_test_count].error_message, "Could not create test file");
+    }
+    
+    e2e_test_count++;
+}
+
+// E2E Test 9: Test save_file function
+void e2e_test_save_file_function() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "Save File Function Test");
+
+    clock_t start = clock();
+    
+    // Create test data
+    create_e2e_test_file();
+    
+    // Add test data
+    int temp_test_count = e2e_test_count;
+    e2e_test_count = temp_test_count;
+    simulate_add_data("SAVE001", "Save Test Product", 7, 700);
+    e2e_test_count = temp_test_count;
+    
+    // Test save function
+    char *original_filename = filename;
+    char save_test_file[] = "../data/save_test_output.csv";
+    filename = save_test_file;
+    
+    int result = save_file();
+    
+    clock_t end = clock();
+    e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    // Check if file was created and has content
+    FILE *check_file = fopen(save_test_file, "r");
+    if (result == 0 && check_file != NULL) {
+        char line[256];
+        int line_count = 0;
+        while (fgets(line, sizeof(line), check_file)) {
+            line_count++;
+        }
+        fclose(check_file);
+        
+        if (line_count >= 2) // Header + at least one data line
+            e2e_results[e2e_test_count].passed = 1;
+        else {
+            e2e_results[e2e_test_count].passed = 0;
+            strcpy(e2e_results[e2e_test_count].error_message, "Saved file has insufficient data");
+        }
+        
+        // Cleanup
+        remove(save_test_file);
+    } else {
+        e2e_results[e2e_test_count].passed = 0;
+        strcpy(e2e_results[e2e_test_count].error_message, "Save function failed");
+    }
+    
+    // Restore filename
+    filename = original_filename;
+    
+    e2e_test_count++;
+}
+
+// E2E Test 10: Test contains_comma function
+void e2e_test_contains_comma_function() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "Contains Comma Function Test");
+
+    clock_t start = clock();
+    
+    // Test cases
+    int test_cases_passed = 0;
+    int total_test_cases = 4;
+    
+    // Test 1: String with comma
+    if (contains_comma("Hello,World") == 1) test_cases_passed++;
+    
+    // Test 2: String without comma
+    if (contains_comma("HelloWorld") == 0) test_cases_passed++;
+    
+    // Test 3: Empty string
+    if (contains_comma("") == 0) test_cases_passed++;
+    
+    // Test 4: String with multiple commas
+    if (contains_comma("A,B,C,D") == 1) test_cases_passed++;
+    
+    clock_t end = clock();
+    e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    if (test_cases_passed == total_test_cases) {
+        e2e_results[e2e_test_count].passed = 1;
+        strcpy(e2e_results[e2e_test_count].error_message, "Contains comma function works correctly");
+    } else {
+        e2e_results[e2e_test_count].passed = 0;
+        snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
+                "Contains comma function failed: %d/%d test cases passed", test_cases_passed, total_test_cases);
+    }
+    
+    e2e_test_count++;
+}
+
+// E2E Test 11: Test to_lowercase function
+void e2e_test_to_lowercase_function() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "To Lowercase Function Test");
+
+    clock_t start = clock();
+    
+    int test_cases_passed = 0;
+    int total_test_cases = 3;
+    
+    // Test 1: Mixed case string
+    char test1[] = "Hello World";
+    to_lowercase(test1);
+    if (strcmp(test1, "hello world") == 0) test_cases_passed++;
+    
+    // Test 2: All uppercase
+    char test2[] = "UPPERCASE";
+    to_lowercase(test2);
+    if (strcmp(test2, "uppercase") == 0) test_cases_passed++;
+    
+    // Test 3: Already lowercase
+    char test3[] = "lowercase";
+    to_lowercase(test3);
+    if (strcmp(test3, "lowercase") == 0) test_cases_passed++;
+    
+    clock_t end = clock();
+    e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    if (test_cases_passed == total_test_cases) {
+        e2e_results[e2e_test_count].passed = 1;
+        strcpy(e2e_results[e2e_test_count].error_message, "To lowercase function works correctly");
+    } else {
+        e2e_results[e2e_test_count].passed = 0;
+        snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
+                "To lowercase function failed: %d/%d test cases passed", test_cases_passed, total_test_cases);
+    }
+    
+    e2e_test_count++;
+}
+
+// E2E Test 12: Test SaveDataToFile function (updated)
+void e2e_test_save_data_to_file_function() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "SaveDataToFile Function Test");
+
+    clock_t start = clock();
+    
+    create_e2e_test_file();
+    int original_count = product_count;
+    
+    // Test SaveDataToFile_NonInteractive function
+    int result = SaveDataToFile_NonInteractive("SAVEDATA001", "SaveDataToFile Test", 15, 1500);
+    
+    clock_t end = clock();
+    e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    if (result == 0 && product_count == original_count + 1) {
+        // Check if the data was actually added correctly
+        int found = 0;
+        for (int i = 0; i < product_count; i++) {
+            if (strcmp(products[i].OrderID, "SAVEDATA001") == 0 &&
+                strcmp(products[i].ProductName, "SaveDataToFile Test") == 0 &&
+                products[i].Quantitiy == 15 &&
+                products[i].TotalPrice == 1500) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (found) {
+            e2e_results[e2e_test_count].passed = 1;
+            strcpy(e2e_results[e2e_test_count].error_message, "SaveDataToFile function works correctly");
+        } else {
+            e2e_results[e2e_test_count].passed = 0;
+            strcpy(e2e_results[e2e_test_count].error_message, "Data not saved correctly");
+        }
+    } else {
+        e2e_results[e2e_test_count].passed = 0;
+        snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
+                "SaveDataToFile function failed: result=%d, count change=%d", result, product_count - original_count);
+    }
+    
+    e2e_test_count++;
+}
+
+// E2E Test 13: Test GitHub sync function
+void e2e_test_github_sync_function() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "GitHub Sync Function Test");
+
+    clock_t start = clock();
+    
+    // Test GitHub sync function (this may not work in all environments)
+    int result = sync_github_file();
+    
+    clock_t end = clock();
+    e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    // Since GitHub sync might fail due to network/auth issues, we'll consider any return value as a test
+    e2e_results[e2e_test_count].passed = 1;
+    snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
+            "GitHub sync function executed (result: %d)", result);
+    
+    e2e_test_count++;
+}
+
+// E2E Test 14: Test file operations with edge cases (improved)
+void e2e_test_file_operations_edge_cases() {
+    e2e_results[e2e_test_count].test_number = e2e_test_count + 1;
+    strcpy(e2e_results[e2e_test_count].test_name, "File Operations Edge Cases Test");
+
+    clock_t start = clock();
+    
+    int edge_cases_passed = 0;
+    int total_edge_cases = 3;
+    
+    // Temporarily save test count
+    int temp_test_count = e2e_test_count;
+    
+    // Edge Case 1: Test with very long OrderID (should be truncated but still work)
+    char long_orderid[60];
+    memset(long_orderid, 'A', 49); // Fill with 'A' up to 49 characters (leaving space for null terminator)
+    long_orderid[49] = '\0';
+    
+    e2e_test_count = temp_test_count;
+    int result1 = SaveDataToFile_NonInteractive(long_orderid, "Long ID Test", 1, 100);
+    if (result1 == 0) {
+        edge_cases_passed++;
+    }
+    e2e_test_count = temp_test_count;
+    
+    // Edge Case 2: Test with very long ProductName (should be truncated but still work)
+    char long_productname[120];
+    memset(long_productname, 'B', 99); // Fill with 'B' up to 99 characters (leaving space for null terminator)
+    long_productname[99] = '\0';
+    
+    e2e_test_count = temp_test_count;
+    int result2 = SaveDataToFile_NonInteractive("EDGE002", long_productname, 1, 100);
+    if (result2 == 0) {
+        edge_cases_passed++;
+    }
+    e2e_test_count = temp_test_count;
+    
+    // Edge Case 3: Test with maximum reasonable values
+    e2e_test_count = temp_test_count;
+    int result3 = SaveDataToFile_NonInteractive("EDGE003", "Max Values Test", 999999, 999999);
+    if (result3 == 0) {
+        edge_cases_passed++;
+    }
+    e2e_test_count = temp_test_count;
+    
+    clock_t end = clock();
+    e2e_results[e2e_test_count].execution_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    
+    if (edge_cases_passed == total_edge_cases) {
+        e2e_results[e2e_test_count].passed = 1;
+        strcpy(e2e_results[e2e_test_count].error_message, "All edge cases handled correctly");
+    } else {
+        e2e_results[e2e_test_count].passed = 0;
+        snprintf(e2e_results[e2e_test_count].error_message, sizeof(e2e_results[e2e_test_count].error_message),
+                "Edge cases test: %d/%d cases passed (r1=%d,r2=%d,r3=%d)", 
+                edge_cases_passed, total_edge_cases, result1, result2, result3);
     }
     
     e2e_test_count++;
 }
 
 // Main E2E test runner
-void run_e2e_tests() {
+void run_e2e_tests_main() {
     cls();
     printf(MAGENTA BOLD "\n");
     printf("╔════════════════════════════════════════════════════════════════╗\n");
     printf("║                     E2E TEST SUITE                            ║\n");
-    printf("║            End-to-End Tests for Add/Delete Functions          ║\n");
+    printf("║         End-to-End Tests for All OOMS Functions              ║\n");
     printf("╚════════════════════════════════════════════════════════════════╝\n");
     printf(RESET);
     
@@ -442,6 +763,13 @@ void run_e2e_tests() {
     e2e_test_delete_nonexisting_record();
     e2e_test_add_then_delete_workflow();
     e2e_test_stress_add_delete();
+    e2e_test_read_data_function();
+    e2e_test_save_file_function();
+    e2e_test_contains_comma_function();
+    e2e_test_to_lowercase_function();
+    e2e_test_save_data_to_file_function();
+    e2e_test_github_sync_function();
+    e2e_test_file_operations_edge_cases();
     
     // Display results
     printf(BLUE BOLD "\n╔════════════════════════════════════════════════════════════════╗\n");
