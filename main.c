@@ -61,6 +61,7 @@ void run_e2e_tests();
 void cleanup_memory();
 void free_products();
 void free_filename();
+int contains_comma(const char *str);
 //-----------------
 // filename defult CSV
 char *filename = "../data/raw_data.csv";
@@ -524,57 +525,69 @@ void add_data(){
     printf(CYAN"------------------------------------------\n"RESET);
     //input product ID
     while (1) {
-    printf("Enter Product ID ["RED"!q"RESET" to cancel]: "YELLOW"");
-    fgets(OrderID, sizeof(OrderID), stdin);
-    OrderID[strcspn(OrderID, "\r\n")] = '\0';
+        printf("Enter Product ID ["RED"!q"RESET" to cancel]: "YELLOW"");
+        fgets(OrderID, sizeof(OrderID), stdin);
+        OrderID[strcspn(OrderID, "\r\n")] = '\0';
 
-    //cancel
-    if(strcmp(OrderID, "!q") == 0){
-        enter_to_back();
-        return;
-    }
-    // check for blank OrderID
-    if (OrderID[0] == '\0' || strspn(OrderID, " ") == strlen(OrderID)) {
-        printf(RED"OrderID cannot be blank! Please try again.\n"RESET);
-        continue;
-    }
-    // check if have duplicate OrderID
-    int is_duplicate = 0;
-    for(int i = 0; i < product_count; i++){
-        if(strcmp(products[i].OrderID,OrderID) == 0){
-            printf(YELLOW"OrderID Duplicate "RED"can't be This OrderID. Please try again.\n"RESET);
-            is_duplicate = 1;
-            break;
+        //cancel
+        if(strcmp(OrderID, "!q") == 0){
+            enter_to_back();
+            return;
         }
+        // check for blank OrderID
+        if (OrderID[0] == '\0' || strspn(OrderID, " ") == strlen(OrderID)) {
+            printf(RED"OrderID cannot be blank! Please try again.\n"RESET);
+            continue;
+        }
+        // Check for comma in OrderID
+        if (contains_comma(OrderID)) {
+            printf(RED"OrderID cannot contain comma (,)! Please try again.\n"RESET);
+            continue;
+        }
+        // check if have duplicate OrderID
+        int is_duplicate = 0;
+        for(int i = 0; i < product_count; i++){
+            if(strcmp(products[i].OrderID,OrderID) == 0){
+                printf(YELLOW"OrderID Duplicate "RED"can't be This OrderID. Please try again.\n"RESET);
+                is_duplicate = 1;
+                break;
+            }
+        }
+        if (is_duplicate) continue;
+        break; // valid OrderID
     }
-    if (is_duplicate) continue;
-    break; // valid OrderID
-    }
+    
     while(1){
         printf(RESET"Enter Product Name: "YELLOW"");
         fgets(ProductName,sizeof(ProductName), stdin);
         ProductName[strcspn(ProductName, "\r\n")] = '\0';
         if (ProductName[0] == '\0' || strspn(ProductName, " ") == strlen(ProductName)) {
-        printf(RED"Product Name cannot be blank! Please try again.\n"RESET);
-        continue;
+            printf(RED"Product Name cannot be blank! Please try again.\n"RESET);
+            continue;
+        }
+        // Check for comma in ProductName
+        if (contains_comma(ProductName)) {
+            printf(RED"Product Name cannot contain comma (,)! Please try again.\n"RESET);
+            continue;
         }
         break;
     }
 
+    // ...existing code for Quantity and TotalPrice...
     printf(RESET"Enter Quantity: "YELLOW"");
     char qty_str[16];
     int valid = 0;
     while (!valid) {
-    fgets(qty_str, sizeof(qty_str), stdin);
-    Quantitiy = atoi(qty_str);
-    if (Quantitiy > 0) {
-        valid = 1;
-    } 
-    else {
-        printf(RED"Invalid input. Please enter a positive integer for Quantity \n"RESET);
-        printf(RED"!!! Invalid choice. Please try again. !!!\n");
-        printf(RESET"Enter Quantity: "YELLOW"");
-    }  
+        fgets(qty_str, sizeof(qty_str), stdin);
+        Quantitiy = atoi(qty_str);
+        if (Quantitiy > 0) {
+            valid = 1;
+        } 
+        else {
+            printf(RED"Invalid input. Please enter a positive integer for Quantity \n"RESET);
+            printf(RED"!!! Invalid choice. Please try again. !!!\n");
+            printf(RESET"Enter Quantity: "YELLOW"");
+        }  
     }
     printf(RESET"Enter TotalPrice: "YELLOW"");
     char price_str[16];
@@ -1138,6 +1151,12 @@ void update_data() {
             break;
         }
 
+        // Check for comma in OrderID
+        if (contains_comma(new_OrderID)) {
+            printf(RED"OrderID cannot contain comma (,)! Please try again.\n"RESET);
+            continue;
+        }
+
         // Check for duplicate OrderID (but allow same OrderID if it's the current one)
         int is_duplicate = 0;
         for (int i = 0; i < product_count; i++) {
@@ -1151,13 +1170,25 @@ void update_data() {
         break; // Valid OrderID
     }
 
-    // Update ProductName
     printf("\nCurrent ProductName: "YELLOW"%s"RESET"\n", products[found_index].ProductName);
-    printf("Enter new ProductName: "YELLOW"");
-    fgets(new_ProductName, sizeof(new_ProductName), stdin);
-    new_ProductName[strcspn(new_ProductName, "\r\n")] = '\0';
-    
-    // Keep current value if empty
+    while (1) {
+        printf("Enter new ProductName: "YELLOW"");
+        fgets(new_ProductName, sizeof(new_ProductName), stdin);
+        new_ProductName[strcspn(new_ProductName, "\r\n")] = '\0';
+        
+        // Keep current value if empty
+        if (new_ProductName[0] == '\0' || strspn(new_ProductName, " ") == strlen(new_ProductName)) {
+            strcpy(new_ProductName, products[found_index].ProductName);
+            break;
+        }
+
+        // Check for comma in ProductName
+        if (contains_comma(new_ProductName)) {
+            printf(RED"Product Name cannot contain comma (,)! Please try again.\n"RESET);
+            continue;
+        }
+        break;
+    }
     if (new_ProductName[0] == '\0' || strspn(new_ProductName, " ") == strlen(new_ProductName)) {
         strcpy(new_ProductName, products[found_index].ProductName);
     }
@@ -1513,3 +1544,6 @@ void setup_console() {
 #endif
 }
 
+int contains_comma(const char *str) {
+    return strchr(str, ',') != NULL;
+}
