@@ -235,7 +235,7 @@ void change_csv_path(){
                 }
                 else {
                     printf("--------------------------------------\n");
-                    printf(RED"Failed to read CSV Path not Change use -->"GREEN"%s\n"RESET, get_csv_name());
+                    printf(RED"Failed to read CSV Path not Change use -->"GREEN"%s\n"RESET"",csv_name());
                     printf("--------------------------------------\n");
                 }
                 enter_to_back();
@@ -246,8 +246,8 @@ void change_csv_path(){
     }
 }
 
-// Get real name file csv (without printing)
-char *get_csv_name() {
+// Get real name file csv
+char *csv_name() {
     static char r_name[256];
     const char *base_name = strrchr(filename, '/');
     if (!base_name) {
@@ -261,14 +261,8 @@ char *get_csv_name() {
     if (dot) {
         *dot = '\0';
     }
-    return r_name;
-}
-
-// Display CSV name with formatting
-char *csv_name() {
-    char *name = get_csv_name();
-    printf("Current Read CSV --> "YELLOW"%s\n\n"RESET, name);
-    return name;
+    printf("Current Read CSV --> "YELLOW"%s\n\n"RESET"", r_name);
+    return r_name;  // Return the actual string instead of 0
 }
 
 //check file path if file Deleat or change name
@@ -276,13 +270,13 @@ char *check_file(){
     static char result[512];  // Static buffer to hold the result
     FILE *file = fopen(filename, "r");
     if (file == NULL){
-        snprintf(result, sizeof(result), RED"Error"RESET" : Could not open file "YELLOW"%s"RESET, filename);
+        snprintf(result, sizeof(result), RED"Error"RESET" : Could not open file "YELLOW"%s\n"RESET, filename);
         return result;
     }
     else{
         fclose(file);  // Don't forget to close the file
-        char *csv_file_name = get_csv_name();  // Get the CSV name without printing
-        snprintf(result, sizeof(result), "Current CSV: "GREEN"%s"RESET, csv_file_name);
+        char *csv_file_name = csv_name();  // Get the CSV name
+        snprintf(result, sizeof(result), "File loaded successfully: %s", csv_file_name);
         return result;
     }
 }
@@ -1352,9 +1346,9 @@ void WDUMenu(){
         printf("\t     [Current Edit CSV]\n\n");
         char *file_status = check_file();
         if (file_status != NULL) {
-            printf("%s\n\n", file_status);
+            printf("%s\n", file_status);
         } else {
-            printf(RED"Error: Unable to check file status\n\n"RESET);
+            printf(RED"Error: Unable to check file status\n"RESET);
         }
         printf(CYAN"==========================================\n"RESET);
         printf(" --> Enter your choice (1-5,9): ");
@@ -1387,9 +1381,9 @@ void menu(){
     printf("\t     [Current Read CSV]\n\n");
     char *file_status = check_file();
     if (file_status != NULL) {
-        printf("%s\n\n", file_status);
+        printf("%s\n", file_status);
     } else {
-        printf(RED"Error: Unable to check file status\n\n"RESET);
+        printf(RED"Error: Unable to check file status\n"RESET);
     }
     printf(CYAN"==========================================\n"RESET);
     printf(" --> Enter your choice (1-6,9): ");
