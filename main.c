@@ -266,14 +266,17 @@ char *csv_name() {
 
 //check file path if file Deleat or change name
 char *check_file(){
+    static char result[512];  // Static buffer to hold the result
     FILE *file = fopen(filename, "r");
     if (file == NULL){
-        printf(RED"Error"RESET" : Could not open file "YELLOW"%s\n"RESET"", filename);
-        return 0;
+        snprintf(result, sizeof(result), RED"Error"RESET" : Could not open file "YELLOW"%s\n"RESET, filename);
+        return result;
     }
     else{
+        fclose(file);  // Don't forget to close the file
         csv_name();
-        return 0;
+        snprintf(result, sizeof(result), "File loaded successfully");
+        return result;
     }
 }
 
@@ -649,7 +652,7 @@ void search_data() {
         found = 0; // Reset the found flag for each search attempt
 
         
-        printf("Enter "YELLOW"OrderID"RESET" or "YELLOW"ProductName"RESET" to search ["RED"!q"RESET" to cancel]: "YELLOW"");
+        printf("Enter "YELLOW"OrderID"RESET" or "YELLOW"ProductName"RESET" to search ["RED"!q"RESET" to cancel]: "YELLOW);
         fgets(search_term, sizeof(search_term), stdin);
         search_term[strcspn(search_term, "\r\n")] = '\0';
 
@@ -836,7 +839,7 @@ void delete_data() {
                 printf(YELLOW"Do you want to save changes to CSV file?\n"RESET);
                 printf(GREEN"1. Save to CSV file and go back\n"RESET);
                 printf(RED"2. Don't save to CSV (changes will be lost) and go back\n"RESET);
-                printf(" --> Enter your choice (1-2): "YELLOW"");
+                printf(" --> Enter your choice (1-2): "YELLOW);
                 
                 while(1) {
                     fgets(save_input, sizeof(save_input), stdin);
@@ -1219,7 +1222,7 @@ void update_data() {
         printf(YELLOW"Do you want to save changes to CSV file?\n"RESET);
         printf(GREEN"1. Save to CSV file and go back\n"RESET);
         printf(RED"2. Don't save to CSV (changes will be lost) and go back\n"RESET);
-        printf(" --> Enter your choice (1-2): "YELLOW"");
+        printf(" --> Enter your choice (1-2): "YELLOW);
 
         while (1) {
             fgets(save_input, sizeof(save_input), stdin);
@@ -1340,7 +1343,12 @@ void WDUMenu(){
         printf(RED"9."RESET" !! Go Back !!\n");
         printf(CYAN"------------------------------------------\n\n"RESET);
         printf("\t     [Current Edit CSV]\n\n");
-        printf("%s\n", check_file());
+        char *file_status = check_file();
+        if (file_status != NULL) {
+            printf("%s\n", file_status);
+        } else {
+            printf(RED"Error: Unable to check file status\n"RESET);
+        }
         printf(CYAN"==========================================\n"RESET);
         printf(" --> Enter your choice (1-5,9): ");
         if (fgets(input, sizeof(input), stdin) != NULL) {
@@ -1351,7 +1359,6 @@ void WDUMenu(){
             }
     }
 }
-
 
 // Base Menu v6
 void menu(){
@@ -1371,7 +1378,12 @@ void menu(){
     printf(RED"9."RESET" !! Exit The Program !!\n");
     printf(CYAN"------------------------------------------\n\n"RESET);
     printf("\t     [Current Read CSV]\n\n");
-    printf("%s\n", check_file());
+    char *file_status = check_file();
+    if (file_status != NULL) {
+        printf("%s\n", file_status);
+    } else {
+        printf(RED"Error: Unable to check file status\n"RESET);
+    }
     printf(CYAN"==========================================\n"RESET);
     printf(" --> Enter your choice (1-6,9): ");
 }
