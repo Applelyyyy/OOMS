@@ -14,7 +14,6 @@ OOMS/
     ├── *.csv                   # csv folder
 ├── output/                     # Compiled Folder executable
     ├── main.exe                # Compiled executable file (Windows)
-    ├── main                    # Compiled executable file (Linux)
 ├── main.c                      # Source
 ├── github_sync.h               # gitsync header 
 ├── github_sync.c               # gitsync source file
@@ -107,12 +106,6 @@ If auto installation fails, install dependencies manually:
 - **"gcc not found"**: Run `run.bat` as Administrator for auto-installation
 - **PowerShell execution policy**: Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 - **Manual GCC install**: Download from mingw-w64.org
-
-### Linux Issues
-
-- **Permission denied**: Run `chmod +x run.sh` first
-- **Package installation fails**: Ensure you have sudo privileges
-- **Unsupported distribution**: Install gcc and wget manually using your package manager
 
 ---
 
