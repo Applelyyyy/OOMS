@@ -151,11 +151,11 @@ int total_test_time = 0;
 
 // Helper functions
 void setup_test_environment() {
-    // Create test directory if it doesn't exist - Fixed Windows compatibility
+
     #ifdef _WIN32
-    _mkdir("../data");
+        _mkdir("../data");
     #else
-    mkdir("../data", 0755);
+        mkdir("../data", 0755);
     #endif
     
     // Clean up any existing test data

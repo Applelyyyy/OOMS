@@ -5,13 +5,15 @@
 #include <string.h>
 #include "github_sync.h" //sync file CSV
 #include <ctype.h>
+#include <locale.h> // Linux
 //-----------------
 
-//lang windows
+//lang OS
 #ifdef _WIN32
     #include <windows.h>
 #else
-    #include <locale.h>
+    #include <sys/stat.h>  // For Linux file operations
+    #include <sys/types.h> // For Linux types
 #endif
 
 
@@ -1428,11 +1430,11 @@ void ListFileFolder(){
     printf("===============================================\n\n"YELLOW);
     printf(RESET"\t  |- "YELLOW"File in Folder"RESET" -|\n\n");
     printf("===============================================\n\n"GREEN);
-    #ifdef _WIN32
-    system("dir /b ..\\data\\*.csv");
-    #else
-    system("ls ../data/*.csv");
-    #endif
+#ifdef _WIN32
+    system("dir /b ..\\data\\*.csv 2>nul");
+#else
+    system("ls -1 ../data/*.csv 2>/dev/null");
+#endif
     printf(RESET"\n===============================================\n\n");
 }
 
@@ -1449,22 +1451,21 @@ void loop2(){
 
 // clear terminal
 void cls(){
-    system("cls||clear");
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
 }
-
 
 //startup
 void setup_console() {
 #ifdef _WIN32
-    // Enable UTF-8 output for Windows
     SetConsoleOutputCP(65001);
     SetConsoleCP(65001);
-
-    // Alternative method for older Windows versions
     system("chcp 65001 > nul");
 #else
-    // Enable UTF-8 for Linux/Unix systems
-    setlocale(LC_ALL, "");
-    setlocale(LC_CTYPE, "C.UTF-8");
+
+    setlocale(LC_ALL, "C.UTF-8");
 #endif
 }
