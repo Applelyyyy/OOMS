@@ -1105,30 +1105,6 @@ void run_all_tests() {
            (critical_failures == 0) ? ANSI_COLOR_GREEN : ANSI_COLOR_RED, critical_failures);
     
     printf("   Execution Time: " ANSI_COLOR_CYAN "%.3f seconds" ANSI_COLOR_RESET "\n", total_time);
-    
-    // Quality assessment with simple ASCII
-    printf("\n----------------------------------------------------------------\n");
-    printf("QUALITY ASSESSMENT:\n");
-    
-    if (success_rate >= 95.0 && critical_failures == 0) {
-        printf(ANSI_COLOR_GREEN "EXCELLENT: Your code quality is outstanding!\n" ANSI_COLOR_RESET);
-    } else if (success_rate >= 85.0 && critical_failures <= 1) {
-        printf(ANSI_COLOR_YELLOW "GOOD: Your code is solid with minor issues.\n" ANSI_COLOR_RESET);
-    } else if (success_rate >= 70.0) {
-        printf(ANSI_COLOR_YELLOW "FAIR: Your code needs some improvements.\n" ANSI_COLOR_RESET);
-    } else {
-        printf(ANSI_COLOR_RED "NEEDS WORK: Significant issues found that need attention.\n" ANSI_COLOR_RESET);
-    }
-    
-    // Recommendations
-    if (critical_failures > 0) {
-        printf(ANSI_COLOR_RED "CRITICAL: Fix memory management and core I/O functions first!\n" ANSI_COLOR_RESET);
-    }
-    
-    if (success_rate < 90.0) {
-        printf(ANSI_COLOR_YELLOW "SUGGESTION: Review failed tests and improve error handling.\n" ANSI_COLOR_RESET);
-    }
-    
     printf("================================================================\n");
     
     // Cleanup test files
