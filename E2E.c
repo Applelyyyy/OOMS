@@ -743,7 +743,7 @@ void run_e2e_tests_main() {
     printf(MAGENTA BOLD "\n");
     printf("╔════════════════════════════════════════════════════════════════╗\n");
     printf("║                     E2E TEST SUITE                            ║\n");
-    printf("║         End-to-End Tests for All OOMS Functions              ║\n");
+    printf("║         End-to-End Tests for All OOMS Functions               ║\n");
     printf("╚════════════════════════════════════════════════════════════════╝\n");
     printf(RESET);
     
@@ -753,7 +753,7 @@ void run_e2e_tests_main() {
     // Initialize test environment
     e2e_test_count = 0;
     
-    printf(CYAN "\n🚀 Starting E2E Tests...\n\n" RESET);
+    printf(CYAN "\n  Starting E2E Tests...\n\n" RESET);
     
     // Run all E2E tests
     e2e_test_add_single_record();
@@ -771,7 +771,7 @@ void run_e2e_tests_main() {
     e2e_test_github_sync_function();
     e2e_test_file_operations_edge_cases();
     
-    // Display results
+
     printf(BLUE BOLD "\n╔════════════════════════════════════════════════════════════════╗\n");
     printf("║                        E2E TEST RESULTS                        ║\n");
     printf("╚════════════════════════════════════════════════════════════════╝\n" RESET);
@@ -809,17 +809,17 @@ void run_e2e_tests_main() {
     printf("Current Product Count: %d\n", product_count);
     
     if (passed_tests == e2e_test_count) {
-        printf("\n" GREEN BOLD "🎉 ALL E2E TESTS PASSED! 🎉\n" RESET);
+        printf("\n" GREEN BOLD " ALL E2E TESTS PASSED! \n" RESET);
     } else {
-        printf("\n" RED BOLD "⚠️  %d E2E TEST(S) FAILED\n" RESET, e2e_test_count - passed_tests);
+        printf("\n" RED BOLD "  %d E2E TEST(S) FAILED\n" RESET, e2e_test_count - passed_tests);
     }
     
     printf(BLUE "═══════════════════════════════════════════════════════════════\n" RESET);
     
-    // Clean up test file
+
     remove("../data/e2e_test.csv");
     
-    // Restore original filename and reload data
+
     filename = original_filename;
     if (products != NULL) {
         free(products);
