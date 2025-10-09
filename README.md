@@ -8,19 +8,21 @@ OOMS is a command-line based Order Management System written in C. It helps mana
 
 ```plaintext
 OOMS/
-├── log/                        # log error Compile
-    ├── Compile_error.txt       # log file
+├── log/                        # Log error compile
+    ├── Compile_error.txt       # Log file
 ├── data/                       # Contains raw_data.csv and other data files
-    ├── *.csv                   # csv folder
-├── output/                     # Compiled Folder executable
+    ├── *.csv                   # CSV files folder
+├── output/                     # Compiled executable folder
     ├── main.exe                # Compiled executable file (Windows)
-├── main.c                      # Source
-├── github_sync.h               # gitsync header 
-├── github_sync.c               # gitsync source file
+    ├── main                    # Compiled executable file (Linux/macOS)
+├── main.c                      # Main source file
+├── github_sync.h               # Git sync header file
+├── github_sync.c               # Git sync source file
 ├── unit_test.c                 # Unit testing file
 ├── E2E.c                       # End-to-End testing file
 ├── README.md                   # Project documentation
-├── run.bat                     # compile and run Program (Windows)
+├── run.bat                     # Compile and run script (Windows)
+├── run.sh                      # Compile and run script (Linux/macOS)
 ```
 
 ---
@@ -53,14 +55,34 @@ The script will automatically:
 - Create necessary directories
 - Compile and run the program
 
+#### 🐧 Linux/macOS (Automatic Installation)
+
+**Method 1: Auto Compile with Dependency Check (Recommended)**
+
+First, make the script executable and run:
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+The Linux script will automatically:
+
+- Detect your Linux distribution (Ubuntu/Debian, Red Hat/CentOS, Fedora, Arch, openSUSE, Alpine)
+- Check if `gcc` is installed
+- Offer to install GCC and build tools using your system's package manager
+- Check for wget/curl (for GitHub sync functionality)
+- Create necessary directories
+- Compile and run the program
+
 **Method 2: Manual Installation**
 
 If auto installation fails, install dependencies manually:
 
 1. **Install MinGW-w64** (for GCC compiler):
-
-   - Download from: https://www.mingw-w64.org/downloads/
+   - Using GCC with MinGW : <https://code.visualstudio.com/docs/cpp/config-mingw>
+   - Download from: <https://www.msys2.org/>
    - Or use package managers:
+
      ```cmd
      # Using Chocolatey
      choco install mingw
@@ -79,6 +101,48 @@ If auto installation fails, install dependencies manually:
    main.exe
    ```
 
+#### 🐧 Linux/macOS Manual Installation
+
+If automatic installation doesn't work, install manually:
+
+1. **Install GCC and build tools**:
+
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get update && sudo apt-get install build-essential
+   
+   # Red Hat/CentOS
+   sudo yum groupinstall "Development Tools"
+   
+   # Fedora
+   sudo dnf groupinstall "Development Tools and Libraries"
+   
+   # Arch Linux
+   sudo pacman -S base-devel
+   
+   # openSUSE
+   sudo zypper install -t pattern devel_basis
+   
+   # macOS (with Homebrew)
+   brew install gcc
+   ```
+
+2. **Install download tools** (optional, for GitHub sync):
+
+   ```bash
+   # Most distributions
+   sudo apt-get install wget curl  # Ubuntu/Debian
+   sudo yum install wget curl      # Red Hat/CentOS
+   ```
+
+3. **Compile manually**:
+
+   ```bash
+   mkdir -p output log data
+   gcc main.c github_sync.c unit_test.c E2E.c -o output/main
+   cd output && ./main
+   ```
+
 ---
 
 ## 📋 Prerequisites
@@ -89,6 +153,18 @@ If auto installation fails, install dependencies manually:
 - **PowerShell**: For GitHub sync functionality (usually pre-installed)
 - **Administrator Rights**: May be required for automatic installation
 
+### Linux
+
+- **GCC Compiler**: Auto-installed by `run.sh` with your package manager
+- **Build Tools**: build-essential, Development Tools, etc. (auto-installed)
+- **wget/curl**: For GitHub sync functionality (auto-checked)
+- **sudo privileges**: May be required for package installation
+
+### macOS
+
+- **GCC Compiler**: Install via Xcode Command Line Tools or Homebrew
+- **curl**: Usually pre-installed for GitHub sync functionality
+
 ---
 
 ## 💻 Platform Support
@@ -96,6 +172,8 @@ If auto installation fails, install dependencies manually:
 | Platform | Script | Executable | Auto Install |
 |----------|--------|------------|--------------|
 | Windows  | `run.bat` | `main.exe` | ✅ MinGW-w64 |
+| Linux    | `run.sh` | `main` | ✅ GCC + Build Tools |
+| macOS    | `run.sh` | `main` | ⚠️ Manual GCC install |
 
 ---
 
@@ -106,6 +184,14 @@ If auto installation fails, install dependencies manually:
 - **"gcc not found"**: Run `run.bat` as Administrator for auto-installation
 - **PowerShell execution policy**: Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 - **Manual GCC install**: Download from mingw-w64.org
+
+### Linux/macOS Issues
+
+- **"gcc not found"**: Install build-essential or development tools for your distribution
+- **Permission denied**: Make sure `run.sh` is executable with `chmod +x run.sh`
+- **Package manager not found**: The script supports most major distributions, install GCC manually if unsupported
+- **wget/curl not found**: Install with your package manager for GitHub sync functionality
+- **Compilation errors**: Ensure all source files are in the same directory and have proper permissions
 
 ---
 
@@ -121,7 +207,7 @@ Run comprehensive unit tests to validate core functionalities:
 ### End-to-End Tests
 Run E2E tests to validate complete workflows:
 ```bash
-# E2E tests validate workflows like adding, deleting, and updating records
+# E2E tests validate workflows all Function
 # Include stress tests for multiple operations
 ```
 
@@ -129,7 +215,7 @@ Run E2E tests to validate complete workflows:
 
 ## Version
 
-Current Version: V1.0.1-10/05/2025
+Current Version: V1.5.0-10/09/2025
 
 ### Changelog
 
@@ -150,3 +236,4 @@ Current Version: V1.0.1-10/05/2025
 - **V0.5.5-beta-09/06/2025:** improve CSV handling and menu display-V2
 - **V0.5.0-beta-09/06/2025:** Add CSV reading functionality and list CSV
 - **V0.1.0-beta-09/04/2025:** Menu and function
+- **V1.5.0-10/09/2025:** make it work on linux and Fully fix error and have a E2E Test and Unit Test
