@@ -71,12 +71,12 @@ int sync_github_file() {
     }
 
     if (!file_exists(LOCAL_PATH) || compare_files(LOCAL_PATH, TEMP_PATH)) {
-        printf("🔄 Updating local file...\n");
+        printf("Updating local file...\n");
         remove(LOCAL_PATH);
         rename(TEMP_PATH, LOCAL_PATH);
-        printf("✅ File updated.\n");
+        printf("File updated.\n");
     } else {
-        printf("✅ Local file is up to date.\n");
+        printf("Local file is up to date.\n");
         remove(TEMP_PATH);
     }
 
