@@ -213,27 +213,62 @@ Run E2E tests to validate complete workflows:
 
 ---
 
-## Version
+## 📋 Version History
 
-Current Version: V1.5.0-10/09/2025
+**Current Version:** `V1.5.0` *(October 9, 2025)*
 
-### Changelog
+---
 
-- **V1.0.1-10/05/2025:** 
-  - Added `unit_test.c` for comprehensive unit testing
-  - Added `E2E.c` for end-to-end testing workflows
-  - Improved GitHub sync functionality in `github_sync.c`
-  - Enhanced error handling and UI prompts
-  - Updated `run.bat` and `run.sh` for better dependency management
-- **V1.0.0-10/04/2025:** Complete all the function and remove data, update data, summary data and Version 1.0.0!
-- **V0.9.7-beta-09/25/2025:** new add data function and save
-- **V0.9.3-beta-09/24/2025:** update menu display-V7 and Refactor main program structure and add file listing functionality fix bug and better ui in change csv file
-- **V0.9.1-beta-09/20/2025:** update menu display-V6
-- **V0.9.0-beta-09/18/2025:** GitHub sync functionality; update CSV handling and compilation script
-- **V0.8.0-beta-09/18/2025:** Startup Create File and UI Change Path and User-makefriendly
-- **V0.6.5-beta-09/16/2025:** update menu display-V4
-- **V0.6.0-beta-09/16/2025:** Add change path CSV and logic; update menu display-V3
-- **V0.5.5-beta-09/06/2025:** improve CSV handling and menu display-V2
-- **V0.5.0-beta-09/06/2025:** Add CSV reading functionality and list CSV
-- **V0.1.0-beta-09/04/2025:** Menu and function
-- **V1.5.0-10/09/2025:** make it work on linux and Fully fix error and have a E2E Test and Unit Test
+### 🚀 Major Releases
+
+#### **V1.5.0** - *October 9, 2025*
+
+- **Cross-Platform Support**: Linux and macOS compatibility added
+- **Enhanced Scripts**: Created comprehensive `run.sh` for Unix-like systems
+- **Auto-Installation**: Smart dependency detection and package manager integration
+- **Complete Testing Suite**: Fully functional E2E and Unit Tests
+- **Bug Fixes**: All critical errors resolved
+
+#### **V1.0.1** - *October 5, 2025*
+
+- **Testing Framework**: Added comprehensive `unit_test.c`
+- **E2E Testing**: Implemented `E2E.c` for complete workflow validation
+- **GitHub Integration**: Enhanced `github_sync.c` functionality
+- **UI Improvements**: Better error handling and user prompts
+- **Build System**: Updated `run.bat` with dependency management
+
+#### **V1.0.0** - *October 4, 2025* 🎉
+
+- **Feature Complete**: All core functions implemented
+- **CRUD Operations**: Add, Read, Update, Delete functionality
+- **Data Summary**: Complete data analysis and reporting
+- **Stable Release**: First production-ready version
+
+---
+
+### 🔧 Development Releases (Beta)
+
+#### **V0.9.x Series** *(September 2025)*
+
+- **V0.9.7**: Enhanced data entry and save functionality
+- **V0.9.3**: Menu display improvements (V7) + file listing + UI enhancements
+- **V0.9.1**: Menu display updates (V6)
+- **V0.9.0**: GitHub synchronization + CSV handling improvements
+
+#### **V0.8.x Series** *(September 2025)*
+
+- **V0.8.0**: Auto file creation + path management + user-friendly interface
+
+#### **V0.6.x Series** *(September 2025)*
+
+- **V0.6.5**: Menu display improvements (V4)
+- **V0.6.0**: CSV path configuration + menu display (V3)
+
+#### **V0.5.x Series** *(September 2025)*
+
+- **V0.5.5**: CSV handling improvements + menu display (V2)
+- **V0.5.0**: Initial CSV reading functionality + file listing
+
+#### **V0.1.0** *(September 4, 2025)*
+
+- **Initial Release**: Basic menu system and core functions
