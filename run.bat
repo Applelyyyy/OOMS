@@ -175,7 +175,6 @@ if %errorlevel% neq 0 (
 
 echo Compilation successful!
 echo Running program...
-echo.
 
 start cmd /c "cd output && main.exe && pause"
 exit
