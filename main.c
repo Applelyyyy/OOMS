@@ -1377,6 +1377,7 @@ void p_quit(){
         choice = atoi(input);
         if(choice == 1){
             cleanup_memory();
+            cls();
             exit(0);
         }
         else if(choice == 2){
