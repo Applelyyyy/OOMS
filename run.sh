@@ -1,28 +1,28 @@
 #!/bin/bash
 
-# Colors for output
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo -e "${CYAN}=====================================${NC}"
 echo -e "${CYAN}    OOMS - Order Management System${NC}"
 echo -e "${CYAN}=====================================${NC}"
 echo
 
-# Function to check if command exists
+
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Function to install gcc on different Linux distributions
+
 install_gcc() {
     echo -e "${YELLOW}Attempting to install GCC...${NC}"
     
-    # Detect Linux distribution
+
     if command_exists apt-get; then
         echo -e "${BLUE}Detected Debian/Ubuntu system${NC}"
         echo -e "${YELLOW}Installing build-essential...${NC}"
@@ -61,7 +61,7 @@ install_gcc() {
     return $?
 }
 
-# Check for GCC compiler
+
 echo -e "${BLUE}Checking for GCC compiler...${NC}"
 if command_exists gcc; then
     echo -e "${GREEN}✓ GCC found!${NC}"
@@ -86,7 +86,7 @@ else
     fi
 fi
 
-# Check for wget or curl for GitHub sync
+
 echo -e "${BLUE}Checking for download tools (wget/curl)...${NC}"
 if command_exists wget; then
     echo -e "${GREEN}✓ wget found!${NC}"
@@ -99,7 +99,7 @@ fi
 
 echo
 
-# Create necessary directories
+
 echo -e "${BLUE}Creating directories...${NC}"
 for dir in output log data; do
     if [ ! -d "$dir" ]; then
@@ -112,18 +112,16 @@ done
 
 echo
 
-# Compile the program
-echo -e "${BLUE}Compiling program...${NC}"
+gram...${NC}"
 echo -e "${YELLOW}gcc main.c github_sync.c unit_test.c E2E.c -o output/main${NC}"
 
 if gcc main.c github_sync.c unit_test.c E2E.c -o output/main 2> log/Compile_error.txt; then
     echo -e "${GREEN}✓ Compilation successful!${NC}"
     
-    # Check if executable was created
+
     if [ -f "output/main" ]; then
         echo -e "${GREEN}✓ Executable created: output/main${NC}"
-        
-        # Make sure it's executable
+
         chmod +x output/main
         
         echo
@@ -132,7 +130,7 @@ if gcc main.c github_sync.c unit_test.c E2E.c -o output/main 2> log/Compile_erro
         echo -e "${CYAN}=====================================${NC}"
         echo
         
-        # Run the program
+
         cd output && ./main
         
     else
