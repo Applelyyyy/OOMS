@@ -237,7 +237,7 @@ Run E2E tests to validate complete workflows:
 - **UI Improvements**: Better error handling and user prompts
 - **Build System**: Updated `run.bat` with dependency management
 
-#### **V1.0.0** - *October 4, 2025* 🎉
+#### **V1.0.0** - *October 4, 2025*
 
 - **Feature Complete**: All core functions implemented
 - **CRUD Operations**: Add, Read, Update, Delete functionality
