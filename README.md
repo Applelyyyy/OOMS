@@ -80,16 +80,6 @@ If auto installation fails, install dependencies manually:
 
 1. **Install MinGW-w64** (for GCC compiler):
    - Using GCC with MinGW : <https://code.visualstudio.com/docs/cpp/config-mingw>
-   - Download from: <https://www.msys2.org/>
-   - Or use package managers:
-
-     ```cmd
-     # Using Chocolatey
-     choco install mingw
-     
-     # Using winget
-     winget install mingw-w64
-     ```
 
 2. **Ensure PowerShell is available** (usually pre-installed on Windows 10/11)
 
