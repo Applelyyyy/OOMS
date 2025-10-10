@@ -34,79 +34,64 @@ if %errorlevel% neq 0 (
     echo 1. Right-click run.bat and "Run as administrator" for auto-install
     echo 2. Install MinGW-w64 manually from: https://www.mingw-w64.org/downloads/
     echo 3. Use package managers:
-    echo    - Chocolatey: choco install mingw
-    echo    - winget: winget install mingw-w64
+    echo    - winget: winget install MSYS2.MSYS2
     echo.
     pause
     exit /b 1
 )
 
 REM Auto-install section (runs only with admin privileges)
-echo 🔧 Attempting to install MinGW-w64 automatically...
+echo 🔧 Attempting to install MSYS2.MSYS2 automatically...
 echo.
 
 REM Check if winget is available
 winget --version >nul 2>&1
 if %errorlevel% equ 0 (
-    echo Using winget to install MinGW-w64...
-    winget install -e --id mingw-w64.mingw-w64
+    echo Using winget to install MSYS2...
+    winget install MSYS2.MSYS2
     if !errorlevel! equ 0 (
-        echo MinGW-w64 installed successfully via winget!
-        echo Refreshing environment variables...
-        call refreshenv >nul 2>&1
+        echo MSYS2 installed successfully via winget!
+        echo Installing MinGW-w64 GCC compiler in MSYS2...
+        
+        REM Wait for MSYS2 to be ready
+        timeout /t 3 /nobreak >nul
+        
+        REM Install GCC compiler via pacman in MSYS2
+        echo Running pacman to install mingw-w64-ucrt-x86_64-gcc...
+        C:\msys64\usr\bin\bash.exe -lc "pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc"
+        
+        if !errorlevel! equ 0 (
+            echo GCC compiler installed successfully in MSYS2!
+            
+            REM Add MSYS2 MinGW64 to PATH temporarily
+            set "PATH=C:\msys64\mingw64\bin;%PATH%"
+            
+            echo Refreshing environment variables...
+            call refreshenv >nul 2>&1
+        ) else (
+            echo ⚠️ Warning: GCC installation via pacman failed, but continuing...
+        )
+        
         goto :verify_install
     ) else (
-        echo ❌ winget installation failed, trying Chocolatey...
-        goto :try_chocolatey
-    )
-)
-
-:try_chocolatey
-REM Check if chocolatey is available
-choco --version >nul 2>&1
-if %errorlevel% equ 0 (
-    echo Using Chocolatey to install MinGW-w64...
-    choco install mingw -y
-    if !errorlevel! equ 0 (
-        echo MinGW-w64 installed successfully via Chocolatey!
-        echo Refreshing environment variables...
-        call refreshenv >nul 2>&1
-        goto :verify_install
-    ) else (
-        echo ❌ Chocolatey installation failed.
+        echo ❌ winget installation failed
         goto :manual_install_prompt
     )
-)
-
-if !errorlevel! equ 0 (
-    echo MinGW-w64 downloaded and extracted to C:\mingw64
-    echo Adding to system PATH...
-    
-    REM Add to system PATH
-    for /f "tokens=2*" %%a in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v PATH 2^>nul') do set "SYSTEM_PATH=%%b"
-    
-    echo !SYSTEM_PATH! | find "C:\mingw64\bin" >nul
-    if !errorlevel! neq 0 (
-        reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v PATH /t REG_EXPAND_SZ /d "!SYSTEM_PATH!;C:\mingw64\bin" /f >nul
-        echo PATH updated successfully!
-    )
-    
-    REM Update current session PATH
-    set "PATH=%PATH%;C:\mingw64\bin"
-    goto :verify_install
-) else (
-    goto :manual_install_prompt
 )
 
 :manual_install_prompt
 echo Automatic installation failed.
 echo.
 echo Please install MinGW-w64 manually:
-echo 1. Download from: https://www.mingw-w64.org/downloads/
-echo 2. Or install package managers:
-echo    - Chocolatey: https://chocolatey.org/install
-echo    - Then run: choco install mingw
-echo 3. Or use winget: winget install mingw-w64
+echo.
+echo Option 1 - MSYS2 (Recommended):
+echo 1. Download MSYS2 from: https://www.msys2.org/
+echo 2. Install MSYS2 to C:\msys64\
+echo 3. Open MSYS2 terminal and run: pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc
+echo 4. Add C:\msys64\mingw64\bin to your system PATH
+echo.
+echo Option 2 - Direct MinGW-w64:
+echo 1. Download from: https://code.visualstudio.com/docs/cpp/config-mingw
 echo.
 echo After installation, run this script again.
 pause
@@ -115,6 +100,16 @@ exit /b 1
 :verify_install
 echo Verifying GCC installation...
 timeout /t 2 /nobreak >nul
+
+REM Try to find GCC in common MSYS2 locations
+set "MSYS2_GCC_PATH=C:\msys64\mingw64\bin\gcc.exe"
+if exist "%MSYS2_GCC_PATH%" (
+    echo Found GCC in MSYS2 installation!
+    set "PATH=C:\msys64\mingw64\bin;%PATH%"
+    "%MSYS2_GCC_PATH%" --version
+    echo.
+    goto :compile
+)
 
 REM Refresh PATH and check again
 gcc --version >nul 2>&1
@@ -125,8 +120,13 @@ if %errorlevel% equ 0 (
     goto :compile
 ) else (
     echo ❌ GCC still not found after installation.
-    echo Please restart your command prompt or computer and try again.
-    echo    Or add C:\mingw64\bin to your PATH manually.
+    echo.
+    echo Troubleshooting steps:
+    echo 1. Check if MSYS2 is installed in C:\msys64\
+    echo 2. Manually run: C:\msys64\usr\bin\bash.exe -lc "pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc"
+    echo 3. Add C:\msys64\mingw64\bin to your system PATH
+    echo 4. Restart your command prompt or computer
+    echo.
     pause
     exit /b 1
 )
@@ -176,5 +176,5 @@ if %errorlevel% neq 0 (
 echo Compilation successful!
 echo Running program...
 
-start cmd /c "cd output && main.exe && pause"
+start cmd /c "cd output && main.exe"
 exit
