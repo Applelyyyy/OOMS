@@ -44,7 +44,7 @@ cd OOMS
 
 Simply run:
 ```cmd
-run.bat
+.\run.bat
 ```
 
 The script will automatically:
