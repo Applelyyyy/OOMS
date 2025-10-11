@@ -53,7 +53,7 @@ int e2e_test_count = 0;
 // Helper function to create test CSV file
 void create_e2e_test_file() {
     char *original_filename = filename;
-    char test_filename[] = "../data/e2e_test.csv";
+    char *test_filename = "../data/e2e_test.csv";
     
     // Create the file
     FILE *file = fopen(test_filename, "w");
@@ -818,7 +818,7 @@ void run_e2e_tests_main() {
     
 
     remove("../data/e2e_test.csv");
-    
+    remove("../data/temp.csv");
 
     filename = original_filename;
     if (products != NULL) {
